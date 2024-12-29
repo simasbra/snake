@@ -27,16 +27,48 @@
  */
 
 #include "snake.h"
+#include "double-linked-list/src/double_linked_list.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-Snake *s_new()
+Snake *s_malloc(WINDOW *game_window)
 {
-	struct Snake *snake = malloc(sizeof(struct Snake));
-	if (!snake) {
-		perror("Malloc failed\n");
+	if (!game_window) {
+		fprintf(stderr, "ERROR: game_window is NULL.\n");
 		return NULL;
 	}
+	struct Snake *snake = malloc(sizeof(struct Snake));
+	if (!snake) {
+		perror("ERROR: Snake malloc failed\n");
+		return NULL;
+	}
+	snake->body = dll_malloc();
+	if (!snake->body) {
+		free(snake);
+		return NULL;
+	}
+	int y_win, x_win;
+	getmaxyx(game_window, y_win, x_win);
+	snake->window = game_window;
+	snake->length = 1;
+	snake->x_head = x_win / 2;
+	snake->y_head = y_win / 2;
+	snake->x_max = x_win;
+	snake->y_max = y_win;
 
 	return snake;
+}
+
+void s_free(Snake **snake)
+{
+	if (!snake) {
+		fprintf(stderr, "ERROR: snake is NULL.\n");
+		return;
+	}
+
+	double_linked_list *list = (*snake)->body;
+	dll_free(&list);
+	(*snake)->body = NULL;
+	free(*snake);
+	*snake = NULL;
 }

@@ -29,14 +29,30 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 
+#include "double-linked-list/src/double_linked_list.h"
+#include <ncurses.h>
+#include <stddef.h>
+
 /*
  * Struct for storing snake information
  */
 typedef struct Snake {
 	int x_head, y_head;
-	unsigned int lenght;
+	int x_max, y_max;
+	size_t length;
+	WINDOW *window;
+	struct double_linked_list *body;
 } Snake;
 
-Snake *s_new();
+/*
+ * Creates new snake object
+ * \RETURNS: pointer to the newly created snake object
+ */
+Snake *s_malloc(WINDOW *game_window);
+
+/*
+ * Frees the given snake object
+ */
+void s_free(Snake **snake);
 
 #endif
