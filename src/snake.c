@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Snake *s_malloc(WINDOW *game_window)
+Snake *s_malloc(const WINDOW *const game_window)
 {
 	if (!game_window) {
 		fprintf(stderr, "ERROR: game_window is NULL.\n");
@@ -71,4 +71,53 @@ void s_free(Snake **snake)
 	(*snake)->body = NULL;
 	free(*snake);
 	*snake = NULL;
+}
+
+void s_handle_move(Snake *const snake, Input *const input)
+{
+	while (1) {
+		pthread_mutex_lock(&input->mutex);
+		while (input->signal_type != EMPTY) {
+			pthread_cond_wait(&input->input_received, &input->mutex);
+		}
+		s_handle_signal(snake, input);
+		wrefresh(snake->window);
+	}
+}
+
+void s_handle_signal(Snake *const snake, Input *const input)
+{
+	switch (input->signal_type) {
+	case MOVE_UP:
+		s_move_up(snake);
+	case EMPTY:
+	default:
+		break;
+	}
+}
+
+void s_move_up(Snake *const snake)
+{
+	if (s_check_new_location(snake, snake->x_head, snake->y_head - 1)) {
+		return;
+	}
+
+	snake->y_head--;
+}
+
+void s_move_down(Snake *const snake);
+
+void s_move_right(Snake *const snake);
+
+void s_move_left(Snake *const snake);
+
+int s_check_new_location(const Snake *const snake, int x, int y)
+{
+	if (x < 1 || y > snake->x_max - 1) {
+		return 1;
+	}
+	if (y < 1 || y > snake->y_max - 1) {
+		return 1;
+	}
+	return 0;
 }

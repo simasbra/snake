@@ -1,9 +1,10 @@
+
 /*
- * FILE: main.c
- * TITLE: Game entrance point
+ * FILE: threads.h
+ * TITLE: Thread handling
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
+ * DESCRIPTION: Thread handling header file
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -26,19 +27,23 @@
  * SOFTWARE.
  */
 
-#include <ncurses.h>
+#include <pthread.h>
 
-int main(int argc, char **argv)
-{
-	initscr();
-	noecho();
-	cbreak();
-	curs_set(0);
+typedef enum SignalType {
+	EMPTY,
+	MOVE_UP,
+	MOVE_DOWN,
+	MOVE_RIGHT,
+	MOVE_LEFT,
+	GAME_RESUME,
+	GAME_EXIT,
+	SIGNAL_TYPE_COUNT
+} Move;
 
-	printw("Press arrow keys to move the player");
-	mvprintw(1, 0, "Press 'q' to exit");
+typedef enum ThreadType { INPUT, GAME } ThreadType;
 
-	curs_set(1);
-	endwin();
-	return 0;
-}
+typedef struct Input {
+	pthread_mutex_t mutex;
+	pthread_cond_t input_received;
+	SignalType signal_type;
+} Input;
