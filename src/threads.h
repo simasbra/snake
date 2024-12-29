@@ -32,20 +32,20 @@
 #include "snake.h"
 #include <pthread.h>
 
-struct SnakeInput {
+typedef struct SnakeArgs {
 	Monitor *monitor;
 	Snake *snake;
-};
+} SnakeArgs;
 
 /*
  * Initializes input handling thread
  */
-void *t_initalize_input(void **args);
+void *t_initalize_input(void *args);
 
 /*
  * Initializes snake movement handling thread
  */
-void *t_initalize_snake(void **args);
+void *t_initalize_snake(void *args);
 
 /*
  * Initializes threads by giving jobs to them

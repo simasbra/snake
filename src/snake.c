@@ -72,25 +72,35 @@ void s_free(Snake **snake)
 	*snake = NULL;
 }
 
-void s_handle_move(Snake *const snake, Monitor *const input)
+void s_handle_move(Snake *const snake, Monitor *const monitor)
 {
-	while (1) {
-		pthread_mutex_lock(&input->mutex);
-		while (input->signal_type != SIGNAL_EMPTY) {
-			pthread_cond_wait(&input->input_received, &input->mutex);
+	if (!snake || !monitor) {
+		return;
+	}
+	int exit_received = 0;
+	while (!exit_received) {
+		printw("AAAA");
+		s_display(snake);
+		pthread_mutex_lock(&monitor->mutex);
+		while (monitor->signal_type == SIGNAL_EMPTY) {
+			pthread_cond_wait(&monitor->input_received, &monitor->mutex);
 		}
-		if (input->signal_type == SIGNAL_GAME_EXIT) {
-			break;
+		printw("BBBBBBB");
+		if (monitor->signal_type == SIGNAL_GAME_EXIT) {
+			exit_received = 1;
 		}
-		s_handle_signal(snake, input);
-		input->signal_type = SIGNAL_EMPTY;
-		pthread_mutex_unlock(&input->mutex);
+		s_handle_signal(snake, monitor);
+		monitor->signal_type = SIGNAL_EMPTY;
+		pthread_mutex_unlock(&monitor->mutex);
 	}
 }
 
-void s_handle_signal(Snake *const snake, Monitor *const input)
+void s_handle_signal(Snake *const snake, Monitor *const monitor)
 {
-	switch (input->signal_type) {
+	if (!snake || !monitor) {
+		return;
+	}
+	switch (monitor->signal_type) {
 	case SIGNAL_MOVE_UP:
 		s_move_up(snake);
 		break;
@@ -110,6 +120,9 @@ void s_handle_signal(Snake *const snake, Monitor *const input)
 
 void s_move_up(Snake *const snake)
 {
+	if (!snake) {
+		return;
+	}
 	if (s_check_new_location(snake, snake->x_head, snake->y_head - 1)) {
 		return;
 	}
@@ -118,6 +131,9 @@ void s_move_up(Snake *const snake)
 
 void s_move_down(Snake *const snake)
 {
+	if (!snake) {
+		return;
+	}
 	if (s_check_new_location(snake, snake->x_head, snake->y_head + 1)) {
 		return;
 	}
@@ -126,6 +142,9 @@ void s_move_down(Snake *const snake)
 
 void s_move_right(Snake *const snake)
 {
+	if (!snake) {
+		return;
+	}
 	if (s_check_new_location(snake, snake->x_head - 1, snake->y_head)) {
 		return;
 	}
@@ -134,6 +153,9 @@ void s_move_right(Snake *const snake)
 
 void s_move_left(Snake *const snake)
 {
+	if (!snake) {
+		return;
+	}
 	if (s_check_new_location(snake, snake->x_head + 1, snake->y_head)) {
 		return;
 	}
@@ -142,6 +164,9 @@ void s_move_left(Snake *const snake)
 
 int s_check_new_location(const Snake *const snake, int x, int y)
 {
+	if (!snake) {
+		return 1;
+	}
 	if (x < 1 || y > snake->x_max - 1) {
 		return 1;
 	}
@@ -153,5 +178,9 @@ int s_check_new_location(const Snake *const snake, int x, int y)
 
 void s_display(const Snake *const snake)
 {
-	mvwaddch(snake->window, snake->y_head, snake->x_head, L'■');
+	if (!snake) {
+		return;
+	}
+	mvwaddch(snake->window, snake->y_head, snake->x_head, '@');
+	/*mvwaddch(snake->window, snake->y_head, snake->x_head, L'■');*/
 }

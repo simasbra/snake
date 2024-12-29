@@ -15,7 +15,9 @@ S = src
 # Object files
 OBJS = $(O)/double_linked_list.o \
 	$(O)/snake.o \
-	$(O)/monitor.o
+	$(O)/input.o \
+	$(O)/monitor.o \
+	$(O)/threads.o \
 
 # Rules
 all: snake

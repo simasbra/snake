@@ -26,11 +26,11 @@
  * SOFTWARE.
  */
 
-#ifndef SNAKE_H
-#define SNAKE_H
+#ifndef __SNAKE_H__
+#define __SNAKE_H__
 
-#include "double_linked_list.h"
 #include "monitor.h"
+#include "double_linked_list.h"
 #include <ncurses.h>
 #include <stddef.h>
 

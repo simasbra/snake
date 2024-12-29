@@ -49,6 +49,7 @@ free_monitor:
 		free(monitor);
 		return NULL;
 	}
+	monitor->signal_type = SIGNAL_EMPTY;
 
 	return monitor;
 }

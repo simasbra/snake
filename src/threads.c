@@ -27,16 +27,23 @@
  */
 
 #include "threads.h"
+#include "input.h"
 #include "snake.h"
 #include <stddef.h>
+#include <stdlib.h>
 
-void *t_initalize_input(void **args)
+void *t_initalize_input(void *args)
 {
+	Monitor *monitor = (Monitor *)args;
+	i_handle_input(monitor);
 	return NULL;
 }
 
-void *t_initalize_snake(void **args)
+void *t_initalize_snake(void *args)
 {
+	SnakeArgs *snake_input = (SnakeArgs *)args;
+	s_handle_move(snake_input->snake, snake_input->monitor);
+	free(snake_input);
 	return NULL;
 }
 
@@ -46,15 +53,20 @@ void t_initialize_threads(pthread_t *const threads, Monitor *const monitor, Snak
 		return;
 	}
 
-	if (pthread_create(&threads[THREAD_INPUT], NULL, (void *)t_initalize_snake, monitor) != 0) {
+	SnakeArgs *snake_input = (SnakeArgs *)malloc(sizeof(SnakeArgs));
+	if (!snake_input) {
 		return;
 	}
-	struct SnakeInput snake_input = { monitor, snake };
-	if (pthread_create(&threads[THREAD_GAME], NULL, (void *)t_initalize_snake, &snake_input) !=
-	    0) {
-		pthread_join(threads[THREAD_INPUT], NULL);
+	snake_input->monitor = monitor;
+	snake_input->snake = snake;
+
+	if (pthread_create(&threads[THREAD_GAME], NULL, t_initalize_snake, snake_input) != 0) {
+		free(snake_input);
+		return;
+	}
+	if (pthread_create(&threads[THREAD_INPUT], NULL, t_initalize_input, monitor) != 0) {
+		free(snake_input);
+		pthread_join(threads[THREAD_GAME], NULL);
 		return;
 	}
 }
-
-void t_finalize_threads(pthread_t *const threads)

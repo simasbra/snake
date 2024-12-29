@@ -27,6 +27,7 @@
  */
 
 #include "input.h"
+#include "monitor.h"
 #include <ncurses.h>
 
 void i_handle_input(Monitor *const monitor)
@@ -34,35 +35,39 @@ void i_handle_input(Monitor *const monitor)
 	int exit_received = 0;
 	while (!exit_received) {
 		int value = getch();
+		printw("%d", value);
 		if (value == (int)'q') {
+			printf("exit");
 			exit_received = 1;
 		}
 		pthread_mutex_lock(&monitor->mutex);
-		i_handle_received_key(monitor, value);
-		pthread_cond_signal(&monitor->input_received);
+		if (i_handle_received_key(monitor, value)) {
+			pthread_cond_signal(&monitor->input_received);
+		}
 		pthread_mutex_unlock(&monitor->mutex);
 	}
 }
 
-void i_handle_received_key(Monitor *const monitor, const int value)
+int i_handle_received_key(Monitor *const monitor, const int value)
 {
 	switch (value) {
 	case (int)'q':
 		monitor->signal_type = SIGNAL_GAME_EXIT;
-		break;
+		return 1;
 	case KEY_UP:
 		monitor->signal_type = SIGNAL_MOVE_UP;
-		break;
+		return 1;
 	case KEY_DOWN:
 		monitor->signal_type = SIGNAL_MOVE_DOWN;
-		break;
+		return 1;
 	case KEY_RIGHT:
 		monitor->signal_type = SIGNAL_MOVE_RIGHT;
-		break;
+		return 1;
 	case KEY_LEFT:
 		monitor->signal_type = SIGNAL_MOVE_LEFT;
-		break;
+		return 1;
 	default:
-		break;
+		monitor->signal_type = SIGNAL_EMPTY;
+		return 0;
 	}
 }

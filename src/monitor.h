@@ -26,6 +26,9 @@
  * SOFTWARE.
  */
 
+#ifndef __MONITOR_H__
+#define __MONITOR_H__
+
 #include <pthread.h>
 #include <stdlib.h>
 
@@ -58,3 +61,5 @@ Monitor *m_malloc(void);
  * Frees given monitor object
  */
 void m_free(Monitor **monitor);
+
+#endif

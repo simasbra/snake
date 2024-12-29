@@ -26,7 +26,9 @@
  * SOFTWARE.
  */
 
+#include "monitor.h"
 #include "snake.h"
+#include "threads.h"
 #include <ncurses.h>
 
 /*
@@ -45,18 +47,28 @@ int main(void)
 
 	int y_max, x_max;
 	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 2, x_max, 0, 0);
+	WINDOW *game_window = newwin(y_max - 1, x_max, 0, 0);
 	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
 	refresh();
-	wprintw(status_window, "Press q for pause or any other key to play");
+	wprintw(status_window, "Press q for pause or any other key to play\n");
 	wrefresh(status_window);
 
 	Snake *snake = s_malloc(game_window);
+	if (!snake) {
+		goto finalize_ncurses;
+	}
 	Monitor *monitor = m_malloc();
+	if (!monitor) {
+		goto finalize_snake;
+	}
 
-	getch();
-	s_free(&snake);
+	pthread_t threads[THREAD_TYPE_COUNT];
+	t_initialize_threads(threads, monitor, snake);
+
 	m_free(&monitor);
+finalize_snake:
+	s_free(&snake);
+finalize_ncurses:
 	ncurses_finalize();
 	return 0;
 }
@@ -66,6 +78,7 @@ void ncurses_initialize(void)
 	initscr();
 	noecho();
 	cbreak();
+	keypad(stdscr, 1);
 	curs_set(0);
 }
 void ncurses_finalize(void)
