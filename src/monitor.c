@@ -1,9 +1,9 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
+ * FILE: monitor.c
+ * TITLE: Thread handling monitor
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
+ * DESCRIPTION: Thread handling monitor implementation
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -26,47 +26,14 @@
  * SOFTWARE.
  */
 
-#include "snake.h"
-#include <ncurses.h>
+#include <stddef.h>
 
-/*
- * Initializes ncurses
- */
-void m_ncurses_initialize(void);
-
-/*
- * Finalizes ncurses
- */
-void m_ncurses_finalize(void);
-
-int main(void)
+void *t_initalize_input(void **args)
 {
-	m_ncurses_initialize();
-	int y_max, x_max;
-	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 2, x_max, 0, 0);
-	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
-	refresh();
-	wprintw(status_window, "Press q for pause or any other key to play");
-	wrefresh(status_window);
-
-	Snake *snake = s_malloc(game_window);
-
-	getch();
-	s_free(&snake);
-	m_ncurses_finalize();
-	return 0;
+	return NULL;
 }
 
-void m_ncurses_initialize(void)
+void *t_initalize_snake(void **args)
 {
-	initscr();
-	noecho();
-	cbreak();
-	curs_set(0);
-}
-void m_ncurses_finalize(void)
-{
-	curs_set(1);
-	endwin();
+	return NULL;
 }

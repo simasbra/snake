@@ -27,11 +27,10 @@
  */
 
 #include "snake.h"
-#include "double-linked-list/src/double_linked_list.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-Snake *s_malloc(const WINDOW *const game_window)
+Snake *s_malloc(WINDOW *const game_window)
 {
 	if (!game_window) {
 		fprintf(stderr, "ERROR: game_window is NULL.\n");
@@ -73,24 +72,37 @@ void s_free(Snake **snake)
 	*snake = NULL;
 }
 
-void s_handle_move(Snake *const snake, Input *const input)
+void s_handle_move(Snake *const snake, Monitor *const input)
 {
 	while (1) {
 		pthread_mutex_lock(&input->mutex);
 		while (input->signal_type != EMPTY) {
 			pthread_cond_wait(&input->input_received, &input->mutex);
 		}
+		if (input->signal_type == GAME_EXIT) {
+			break;
+		}
 		s_handle_signal(snake, input);
-		wrefresh(snake->window);
+		input->signal_type = EMPTY;
+		pthread_mutex_unlock(&input->mutex);
 	}
 }
 
-void s_handle_signal(Snake *const snake, Input *const input)
+void s_handle_signal(Snake *const snake, Monitor *const input)
 {
 	switch (input->signal_type) {
 	case MOVE_UP:
 		s_move_up(snake);
-	case EMPTY:
+		break;
+	case MOVE_DOWN:
+		s_move_down(snake);
+		break;
+	case MOVE_RIGHT:
+		s_move_right(snake);
+		break;
+	case MOVE_LEFT:
+		s_move_left(snake);
+		break;
 	default:
 		break;
 	}
@@ -101,15 +113,32 @@ void s_move_up(Snake *const snake)
 	if (s_check_new_location(snake, snake->x_head, snake->y_head - 1)) {
 		return;
 	}
-
 	snake->y_head--;
 }
 
-void s_move_down(Snake *const snake);
+void s_move_down(Snake *const snake)
+{
+	if (s_check_new_location(snake, snake->x_head, snake->y_head + 1)) {
+		return;
+	}
+	snake->y_head++;
+}
 
-void s_move_right(Snake *const snake);
+void s_move_right(Snake *const snake)
+{
+	if (s_check_new_location(snake, snake->x_head - 1, snake->y_head)) {
+		return;
+	}
+	snake->x_head--;
+}
 
-void s_move_left(Snake *const snake);
+void s_move_left(Snake *const snake)
+{
+	if (s_check_new_location(snake, snake->x_head + 1, snake->y_head)) {
+		return;
+	}
+	snake->x_head++;
+}
 
 int s_check_new_location(const Snake *const snake, int x, int y)
 {
@@ -120,4 +149,9 @@ int s_check_new_location(const Snake *const snake, int x, int y)
 		return 1;
 	}
 	return 0;
+}
+
+void s_display(const Snake *const snake)
+{
+	mvwaddch(snake->y_head, snake->x_head, snake->window, L'■');
 }

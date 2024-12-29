@@ -1,10 +1,9 @@
-
 /*
- * FILE: threads.h
- * TITLE: Thread handling
+ * FILE: monitor.h
+ * TITLE: Thread handling monitor
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: Thread handling header file
+ * DESCRIPTION: Thread handling monitor header file
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -42,8 +41,20 @@ typedef enum SignalType {
 
 typedef enum ThreadType { INPUT, GAME } ThreadType;
 
-typedef struct Input {
+typedef struct Monitor {
 	pthread_mutex_t mutex;
 	pthread_cond_t input_received;
-	SignalType signal_type;
-} Input;
+	enum SignalType signal_type;
+} Monitor;
+
+/*
+ * Initializes input handling thread
+ */
+void *t_initalize_input(void **args);
+
+/*
+ * Initializes snake movement handling thread
+ */
+void *t_initalize_snake(void **args);
+
+void t_initialize_threads(pthread_t *threads, Monitor *monitor);

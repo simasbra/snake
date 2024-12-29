@@ -29,8 +29,8 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 
-#include "double-linked-list/src/double_linked_list.h"
-#include "threads.h"
+#include "double_linked_list.h"
+#include "monitor.h"
 #include <ncurses.h>
 #include <stddef.h>
 
@@ -49,7 +49,7 @@ typedef struct Snake {
  * Creates new snake object
  * \RETURNS: pointer to the newly created snake object
  */
-Snake *s_malloc(const WINDOW *const game_window);
+Snake *s_malloc(WINDOW *const game_window);
 
 /*
  * Frees the given snake object
@@ -59,12 +59,12 @@ void s_free(Snake **snake);
 /*
  * Handles snake movement
  */
-void s_handle_move(Snake *const snake, Input *const input);
+void s_handle_move(Snake *const snake, Monitor *const monitor);
 
 /*
  * Handles received signal type from input
  */
-void s_handle_signal(Snake *const snake, Input *const input);
+void s_handle_signal(Snake *const snake, Monitor *const monitor);
 
 /*
  * Moves snake head up
@@ -92,4 +92,8 @@ void s_move_left(Snake *const snake);
  */
 int s_check_new_location(const Snake *const snake, int x, int y);
 
+/*
+ * Displays snake on the game window
+ */
+void s_display(const Snake *const snake);
 #endif
