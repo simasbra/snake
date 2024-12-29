@@ -76,14 +76,14 @@ void s_handle_move(Snake *const snake, Monitor *const input)
 {
 	while (1) {
 		pthread_mutex_lock(&input->mutex);
-		while (input->signal_type != EMPTY) {
+		while (input->signal_type != SIGNAL_EMPTY) {
 			pthread_cond_wait(&input->input_received, &input->mutex);
 		}
-		if (input->signal_type == GAME_EXIT) {
+		if (input->signal_type == SIGNAL_GAME_EXIT) {
 			break;
 		}
 		s_handle_signal(snake, input);
-		input->signal_type = EMPTY;
+		input->signal_type = SIGNAL_EMPTY;
 		pthread_mutex_unlock(&input->mutex);
 	}
 }
@@ -91,16 +91,16 @@ void s_handle_move(Snake *const snake, Monitor *const input)
 void s_handle_signal(Snake *const snake, Monitor *const input)
 {
 	switch (input->signal_type) {
-	case MOVE_UP:
+	case SIGNAL_MOVE_UP:
 		s_move_up(snake);
 		break;
-	case MOVE_DOWN:
+	case SIGNAL_MOVE_DOWN:
 		s_move_down(snake);
 		break;
-	case MOVE_RIGHT:
+	case SIGNAL_MOVE_RIGHT:
 		s_move_right(snake);
 		break;
-	case MOVE_LEFT:
+	case SIGNAL_MOVE_LEFT:
 		s_move_left(snake);
 		break;
 	default:
@@ -153,5 +153,5 @@ int s_check_new_location(const Snake *const snake, int x, int y)
 
 void s_display(const Snake *const snake)
 {
-	mvwaddch(snake->y_head, snake->x_head, snake->window, L'■');
+	mvwaddch(snake->window, snake->y_head, snake->x_head, L'■');
 }

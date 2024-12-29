@@ -1,3 +1,0 @@
-[submodule "src/double-linked-list"]
-	path = src/double-linked-list
-	url = git@gitlab.com:simo-data/double-linked-list.git

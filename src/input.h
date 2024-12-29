@@ -25,3 +25,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+#include "monitor.h"
+
+/*
+ * Handles user input
+ */
+void i_handle_input(Monitor *const monitor);
+
+/*
+ * Handles user pressed key
+ */
+void i_handle_received_key(Monitor *const monitor, const int value);

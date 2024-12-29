@@ -27,19 +27,20 @@
  */
 
 #include <pthread.h>
+#include <stdlib.h>
 
 typedef enum SignalType {
-	EMPTY,
-	MOVE_UP,
-	MOVE_DOWN,
-	MOVE_RIGHT,
-	MOVE_LEFT,
-	GAME_RESUME,
-	GAME_EXIT,
+	SIGNAL_EMPTY,
+	SIGNAL_MOVE_UP,
+	SIGNAL_MOVE_DOWN,
+	SIGNAL_MOVE_RIGHT,
+	SIGNAL_MOVE_LEFT,
+	SIGNAL_GAME_RESUME,
+	SIGNAL_GAME_EXIT,
 	SIGNAL_TYPE_COUNT
 } Move;
 
-typedef enum ThreadType { INPUT, GAME } ThreadType;
+typedef enum ThreadType { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } ThreadType;
 
 typedef struct Monitor {
 	pthread_mutex_t mutex;
@@ -48,13 +49,12 @@ typedef struct Monitor {
 } Monitor;
 
 /*
- * Initializes input handling thread
+ * Creates a new monitor object
+ * \RETURNS: A newly created monitor
  */
-void *t_initalize_input(void **args);
+Monitor *m_malloc(void);
 
 /*
- * Initializes snake movement handling thread
+ * Frees given monitor object
  */
-void *t_initalize_snake(void **args);
-
-void t_initialize_threads(pthread_t *threads, Monitor *monitor);
+void m_free(Monitor **monitor);

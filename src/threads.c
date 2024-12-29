@@ -1,9 +1,9 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
+ * FILE: threads.h
+ * TITLE: Thread handling
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
+ * DESCRIPTION: Thread handling header file
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -26,50 +26,35 @@
  * SOFTWARE.
  */
 
+#include "threads.h"
 #include "snake.h"
-#include <ncurses.h>
+#include <stddef.h>
 
-/*
- * Initializes ncurses
- */
-void ncurses_initialize(void);
-
-/*
- * Finalizes ncurses
- */
-void ncurses_finalize(void);
-
-int main(void)
+void *t_initalize_input(void **args)
 {
-	ncurses_initialize();
-
-	int y_max, x_max;
-	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 2, x_max, 0, 0);
-	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
-	refresh();
-	wprintw(status_window, "Press q for pause or any other key to play");
-	wrefresh(status_window);
-
-	Snake *snake = s_malloc(game_window);
-	Monitor *monitor = m_malloc();
-
-	getch();
-	s_free(&snake);
-	m_free(&monitor);
-	ncurses_finalize();
-	return 0;
+	return NULL;
 }
 
-void ncurses_initialize(void)
+void *t_initalize_snake(void **args)
 {
-	initscr();
-	noecho();
-	cbreak();
-	curs_set(0);
+	return NULL;
 }
-void ncurses_finalize(void)
+
+void t_initialize_threads(pthread_t *const threads, Monitor *const monitor, Snake *const snake)
 {
-	curs_set(1);
-	endwin();
+	if (!threads || !monitor) {
+		return;
+	}
+
+	if (pthread_create(&threads[THREAD_INPUT], NULL, (void *)t_initalize_snake, monitor) != 0) {
+		return;
+	}
+	struct SnakeInput snake_input = { monitor, snake };
+	if (pthread_create(&threads[THREAD_GAME], NULL, (void *)t_initalize_snake, &snake_input) !=
+	    0) {
+		pthread_join(threads[THREAD_INPUT], NULL);
+		return;
+	}
 }
+
+void t_finalize_threads(pthread_t *const threads)

@@ -26,14 +26,37 @@
  * SOFTWARE.
  */
 
-#include <stddef.h>
+#include "monitor.h"
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-void *t_initalize_input(void **args)
+Monitor *m_malloc(void)
 {
-	return NULL;
+	Monitor *monitor = (Monitor *)malloc(sizeof(Monitor));
+	if (!monitor) {
+		fprintf(stderr, "ERROR: malloc failed for monitor allocation\n");
+		return NULL;
+	}
+	if (pthread_mutex_init(&(monitor->mutex), NULL) != 0) {
+		fprintf(stderr, "ERROR: mutex creation failed\n");
+		goto free_monitor;
+	}
+	if (pthread_cond_init(&(monitor->input_received), NULL) != 0) {
+		fprintf(stderr, "ERROR: mutex creation failed\n");
+		pthread_mutex_destroy(&(monitor->mutex));
+free_monitor:
+		free(monitor);
+		return NULL;
+	}
+
+	return monitor;
 }
 
-void *t_initalize_snake(void **args)
+void m_free(Monitor **monitor)
 {
-	return NULL;
+	pthread_mutex_destroy(&((*monitor)->mutex));
+	pthread_cond_destroy(&((*monitor)->input_received));
+	free(*monitor);
+	*monitor = NULL;
 }

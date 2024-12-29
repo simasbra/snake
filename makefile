@@ -13,8 +13,9 @@ O = objs
 S = src
 
 # Object files
-OBJS = $(O)/snake.o \
-	$(O)/double_linked_list.o
+OBJS = $(O)/double_linked_list.o \
+	$(O)/snake.o \
+	$(O)/monitor.o
 
 # Rules
 all: snake
