@@ -52,4 +52,9 @@ void *t_initalize_snake(void *args);
  */
 void t_initialize_threads(pthread_t *const threads, Monitor *const monitor, Snake *const snake);
 
+/*
+ * Finalizes threads by joining them
+ */
+void t_finalize_threads(pthread_t *const threads);
+
 #endif

@@ -28,8 +28,10 @@
 
 #include "threads.h"
 #include "input.h"
+#include "monitor.h"
 #include "snake.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void *t_initalize_input(void *args)
@@ -60,13 +62,25 @@ void t_initialize_threads(pthread_t *const threads, Monitor *const monitor, Snak
 	snake_input->monitor = monitor;
 	snake_input->snake = snake;
 
-	if (pthread_create(&threads[THREAD_GAME], NULL, t_initalize_snake, snake_input) != 0) {
+	if (pthread_create(&(threads[THREAD_GAME]), NULL, t_initalize_snake, snake_input) != 0) {
+		perror("Game thread create failed:\n");
 		free(snake_input);
 		return;
 	}
-	if (pthread_create(&threads[THREAD_INPUT], NULL, t_initalize_input, monitor) != 0) {
-		free(snake_input);
+	if (pthread_create(&(threads[THREAD_INPUT]), NULL, t_initalize_input, monitor) != 0) {
+		perror("Input thread create failed:\n");
 		pthread_join(threads[THREAD_GAME], NULL);
+		free(snake_input);
 		return;
+	}
+}
+
+void t_finalize_threads(pthread_t *const threads)
+{
+	if (pthread_join(threads[THREAD_GAME], NULL) != 0) {
+		perror("Game thread join failed:\n");
+	}
+	if (pthread_join(threads[THREAD_INPUT], NULL) != 0) {
+		perror("Input thread join failed:\n");
 	}
 }

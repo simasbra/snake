@@ -35,16 +35,14 @@ void i_handle_input(Monitor *const monitor)
 	int exit_received = 0;
 	while (!exit_received) {
 		int value = getch();
-		printw("%d", value);
 		if (value == (int)'q') {
-			printf("exit");
 			exit_received = 1;
 		}
-		pthread_mutex_lock(&monitor->mutex);
+		pthread_mutex_lock(&(monitor->mutex));
 		if (i_handle_received_key(monitor, value)) {
-			pthread_cond_signal(&monitor->input_received);
+			pthread_cond_signal(&(monitor->input_received));
 		}
-		pthread_mutex_unlock(&monitor->mutex);
+		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
 

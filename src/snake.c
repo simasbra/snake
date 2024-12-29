@@ -79,19 +79,18 @@ void s_handle_move(Snake *const snake, Monitor *const monitor)
 	}
 	int exit_received = 0;
 	while (!exit_received) {
-		printw("AAAA");
 		s_display(snake);
-		pthread_mutex_lock(&monitor->mutex);
+		pthread_mutex_lock(&(monitor->mutex));
 		while (monitor->signal_type == SIGNAL_EMPTY) {
-			pthread_cond_wait(&monitor->input_received, &monitor->mutex);
+			pthread_cond_wait(&(monitor->input_received), &(monitor->mutex));
 		}
-		printw("BBBBBBB");
+		/*wprintw(snake->window, "a");*/
 		if (monitor->signal_type == SIGNAL_GAME_EXIT) {
 			exit_received = 1;
 		}
 		s_handle_signal(snake, monitor);
 		monitor->signal_type = SIGNAL_EMPTY;
-		pthread_mutex_unlock(&monitor->mutex);
+		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
 

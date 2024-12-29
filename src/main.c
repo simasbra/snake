@@ -64,6 +64,7 @@ int main(void)
 
 	pthread_t threads[THREAD_TYPE_COUNT];
 	t_initialize_threads(threads, monitor, snake);
+	t_finalize_threads(threads);
 
 	m_free(&monitor);
 finalize_snake:
