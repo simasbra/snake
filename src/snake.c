@@ -90,7 +90,6 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 			exit_received = 1;
 		}
 		s_handle_signal(snake, monitor);
-		monitor->signal = SIGNAL_EMPTY;
 		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
@@ -119,6 +118,7 @@ void s_handle_signal(snake *const snake, monitor *const monitor)
 	default:
 		break;
 	}
+	monitor->signal = SIGNAL_EMPTY;
 }
 
 void s_move_up(snake *const snake)
@@ -126,7 +126,7 @@ void s_move_up(snake *const snake)
 	if (!snake) {
 		return;
 	}
-	if (s_check_new_location(snake, snake->x_head, snake->y_head - 1)) {
+	if (!s_check_new_location(snake, snake->x_head, snake->y_head - 1)) {
 		return;
 	}
 	snake->y_head--;
@@ -138,7 +138,7 @@ void s_move_down(snake *const snake)
 	if (!snake) {
 		return;
 	}
-	if (s_check_new_location(snake, snake->x_head, snake->y_head + 1)) {
+	if (!s_check_new_location(snake, snake->x_head, snake->y_head + 1)) {
 		return;
 	}
 	snake->y_head++;
@@ -150,7 +150,7 @@ void s_move_right(snake *const snake)
 	if (!snake) {
 		return;
 	}
-	if (s_check_new_location(snake, snake->x_head - 1, snake->y_head)) {
+	if (!s_check_new_location(snake, snake->x_head + 1, snake->y_head)) {
 		return;
 	}
 	snake->x_head++;
@@ -162,12 +162,13 @@ void s_move_left(snake *const snake)
 	if (!snake) {
 		return;
 	}
-	if (s_check_new_location(snake, snake->x_head + 1, snake->y_head)) {
+	if (!s_check_new_location(snake, snake->x_head - 1, snake->y_head)) {
 		return;
 	}
 	snake->x_head--;
 	snake->last_move = SNAKE_MOVE_LEFT;
 }
+
 void s_move_previous(snake *const snake)
 {
 	if (!snake) {
@@ -194,15 +195,18 @@ void s_move_previous(snake *const snake)
 int s_check_new_location(const snake *const snake, int x, int y)
 {
 	if (!snake) {
-		return 1;
+		return 0;
 	}
-	if (x < 1 || y > snake->x_max - 1) {
-		return 1;
+	if (x < 1) {
+		return 0;
+	} else if (y < 1) {
+		return 0;
+	} else if (x > snake->x_max - 2) {
+		return 0;
+	} else if (y > snake->y_max - 2) {
+		return 0;
 	}
-	if (y < 1 || y > snake->y_max - 1) {
-		return 1;
-	}
-	return 0;
+	return 1;
 }
 
 void s_display(const snake *const snake)

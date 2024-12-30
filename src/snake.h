@@ -50,6 +50,7 @@ typedef enum snake_move {
 typedef struct snake {
 	int x_head, y_head;
 	int x_max, y_max;
+	int x_food, y_food;
 	size_t length;
 	WINDOW *window;
 	enum snake_move last_move;
@@ -112,4 +113,10 @@ int s_check_new_location(const snake *const snake, int x, int y);
  * Displays snake on the game window
  */
 void s_display(const snake *const snake);
+
+/*
+ * Generates snake food
+ */
+void s_generate_food(snake *const snake);
+
 #endif
