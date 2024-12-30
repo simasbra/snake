@@ -30,7 +30,6 @@
 #define __MONITOR_H__
 
 #include <pthread.h>
-#include <stdlib.h>
 
 typedef enum m_signal {
 	SIGNAL_EMPTY,

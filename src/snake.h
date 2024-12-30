@@ -81,7 +81,7 @@ void s_handle_move(snake *const snake, monitor *const monitor);
 /*
  * Handles received signal type from input
  */
-void s_handle_signal(snake *const snake, monitor *const monitor);
+void s_handle_signal(snake *const snake, monitor *const monitor, m_signal *const previous);
 
 /*
  * Moves snake head up

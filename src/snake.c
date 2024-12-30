@@ -86,6 +86,9 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 		return;
 	}
 	s_generate_food(snake);
+	m_signal *previous = (enum m_signal *)malloc(sizeof(enum m_signal));
+	*previous = SIGNAL_EMPTY;
+
 	int exit_received = 0;
 	while (!exit_received) {
 		s_display(snake);
@@ -96,17 +99,22 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 		if (monitor->signal == SIGNAL_GAME_EXIT) {
 			exit_received = 1;
 		}
-		s_handle_signal(snake, monitor);
+		s_handle_signal(snake, monitor, previous);
 		pthread_mutex_unlock(&(monitor->mutex));
 		s_handle_food(snake);
 	}
+	free(previous);
 }
 
-void s_handle_signal(snake *const snake, monitor *const monitor)
+void s_handle_signal(snake *const snake, monitor *const monitor, m_signal *const previous)
 {
 	if (!snake || !monitor) {
 		return;
 	}
+	if (monitor->signal == *previous && monitor->signal != SIGNAL_MOVE_PREVIOUS) {
+		goto s_clear_previous_signal;
+	}
+
 	switch (monitor->signal) {
 	case SIGNAL_MOVE_UP:
 		s_move_up(snake);
@@ -126,6 +134,8 @@ void s_handle_signal(snake *const snake, monitor *const monitor)
 	default:
 		break;
 	}
+s_clear_previous_signal:
+	*previous = monitor->signal;
 	monitor->signal = SIGNAL_EMPTY;
 }
 
