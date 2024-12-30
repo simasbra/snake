@@ -1,10 +1,4 @@
 /*
- * FILE: snake.c
- * TITLE: Snake logic handling
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Snake movement, death and other logic handling
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -59,7 +53,6 @@ void s_initialize(snake *const snake, WINDOW *const game_window)
 	s_coordinates food = { -1, -1 };
 
 	snake->window = game_window;
-	snake->length = 1;
 	snake->head = head;
 	snake->max = max;
 	snake->food = food;
@@ -202,7 +195,7 @@ void s_display(const snake *const snake)
 
 void s_clear_tail(const snake *const snake)
 {
-	s_coordinates *tail = (struct s_coordinates *)dll_get_index(snake->body, snake->length);
+	s_coordinates *tail = (struct s_coordinates *)snake->body->tail->data;
 	mvwaddch(snake->window, tail->y, tail->x, ' ');
 }
 
@@ -237,7 +230,6 @@ void s_handle_food(snake *const snake)
 
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
-		snake->length++;
 		s_generate_food(snake);
 	} else {
 		s_clear_tail(snake);

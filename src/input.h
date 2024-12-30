@@ -1,10 +1,4 @@
 /*
- * FILE: input.h
- * TITLE: Input handling
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Input handling header file
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

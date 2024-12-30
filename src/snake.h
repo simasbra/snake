@@ -1,10 +1,4 @@
 /*
- * FILE: snake.h
- * TITLE: Snake logic handling
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Snake movement, death and other logic handling header file
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,7 +26,6 @@
 #include "monitor.h"
 #include "double_linked_list.h"
 #include <ncurses.h>
-#include <stddef.h>
 #include <time.h>
 
 typedef struct s_coordinates {
@@ -47,7 +40,6 @@ typedef struct snake {
 	struct s_coordinates head;
 	struct s_coordinates max;
 	struct s_coordinates food;
-	size_t length;
 	WINDOW *window;
 	struct double_linked_list *body;
 } snake;

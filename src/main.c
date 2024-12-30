@@ -1,10 +1,4 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -62,14 +56,16 @@ int main(void)
 	srand(time.tv_nsec);
 
 	snake *snake = s_malloc();
-	s_initialize(snake, game_window);
 	if (!snake) {
 		goto finalize_ncurses;
 	}
+	s_initialize(snake, game_window);
+
 	monitor *monitor = m_malloc();
 	if (!monitor) {
 		goto finalize_snake;
 	}
+	m_initialize(monitor);
 
 	pthread_t threads[THREAD_TYPE_COUNT];
 	t_initialize_threads(threads, monitor, snake);

@@ -1,10 +1,4 @@
 /*
- * FILE: monitor.h
- * TITLE: Thread handling monitor
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Thread handling monitor header file
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -64,6 +58,7 @@ typedef struct monitor {
 	enum m_signal signal;
 	enum m_snake_move move_previous;
 	enum m_snake_move move_next;
+	unsigned int score;
 } monitor;
 
 /*
@@ -71,6 +66,11 @@ typedef struct monitor {
  * \RETURNS: A newly created monitor
  */
 monitor *m_malloc(void);
+
+/*
+ * Initializes monitor with default values
+ */
+void m_initialize(monitor *const monitor);
 
 /*
  * Frees given monitor object

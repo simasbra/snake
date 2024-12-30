@@ -1,10 +1,4 @@
 /*
- * FILE: monitor.c
- * TITLE: Thread handling monitor
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Thread handling monitor implementation
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -42,9 +36,16 @@ monitor *m_malloc(void)
 		free(monitor);
 		return NULL;
 	}
-	monitor->signal = SIGNAL_EMPTY;
 
 	return monitor;
+}
+
+void m_initialize(monitor *const monitor)
+{
+	monitor->signal = SIGNAL_EMPTY;
+	monitor->move_next = SNAKE_MOVE_RIGHT;
+	monitor->move_previous = SNAKE_MOVE_RIGHT;
+	monitor->score = 0;
 }
 
 void m_free(monitor **monitor)
