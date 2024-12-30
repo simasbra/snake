@@ -39,14 +39,12 @@ void i_handle_input(monitor *const monitor)
 			exit_received = 1;
 		}
 		pthread_mutex_lock(&(monitor->mutex));
-		if (i_handle_received_key(monitor, value)) {
-			pthread_cond_signal(&(monitor->input_received));
-		}
+		i_handle_received_key(monitor, value);
 		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
 
-int i_handle_received_key(monitor *const monitor, const int value)
+short i_handle_received_key(monitor *const monitor, const int value)
 {
 	switch (value) {
 	case (int)'q':
@@ -54,25 +52,80 @@ int i_handle_received_key(monitor *const monitor, const int value)
 		return 1;
 	case KEY_UP:
 	case (int)'w':
-		monitor->signal = SIGNAL_MOVE_UP;
+		i_handle_key_up(monitor);
 		return 1;
 	case KEY_DOWN:
 	case (int)'r':
-		monitor->signal = SIGNAL_MOVE_DOWN;
+		i_handle_key_down(monitor);
 		return 1;
 	case KEY_RIGHT:
 	case (int)'s':
-		monitor->signal = SIGNAL_MOVE_RIGHT;
+		i_handle_key_right(monitor);
 		return 1;
 	case KEY_LEFT:
 	case (int)'a':
-		monitor->signal = SIGNAL_MOVE_LEFT;
+		i_handle_key_left(monitor);
 		return 1;
 	case -1:
-		monitor->signal = SIGNAL_MOVE_PREVIOUS;
 		return 1;
 	default:
 		monitor->signal = SIGNAL_EMPTY;
 		return 0;
+	}
+}
+
+void i_handle_key_up(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	switch (monitor->move_previous) {
+	case SNAKE_MOVE_DOWN:
+	case SNAKE_MOVE_UP:
+		return;
+	default:
+		monitor->move_next = SNAKE_MOVE_UP;
+	}
+}
+
+void i_handle_key_down(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	switch (monitor->move_previous) {
+	case SNAKE_MOVE_UP:
+	case SNAKE_MOVE_DOWN:
+		return;
+	default:
+		monitor->move_next = SNAKE_MOVE_DOWN;
+	}
+}
+
+void i_handle_key_right(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	switch (monitor->move_previous) {
+	case SNAKE_MOVE_RIGHT:
+	case SNAKE_MOVE_LEFT:
+		return;
+	default:
+		monitor->move_next = SNAKE_MOVE_RIGHT;
+	}
+}
+
+void i_handle_key_left(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	switch (monitor->move_previous) {
+	case SNAKE_MOVE_LEFT:
+	case SNAKE_MOVE_RIGHT:
+		return;
+	default:
+		monitor->move_next = SNAKE_MOVE_LEFT;
 	}
 }

@@ -27,7 +27,6 @@
  */
 
 #include "monitor.h"
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -40,12 +39,6 @@ monitor *m_malloc(void)
 	}
 	if (pthread_mutex_init(&(monitor->mutex), NULL) != 0) {
 		fprintf(stderr, "ERROR: mutex creation failed\n");
-		goto free_monitor;
-	}
-	if (pthread_cond_init(&(monitor->input_received), NULL) != 0) {
-		fprintf(stderr, "ERROR: mutex creation failed\n");
-		pthread_mutex_destroy(&(monitor->mutex));
-free_monitor:
 		free(monitor);
 		return NULL;
 	}
@@ -57,7 +50,6 @@ free_monitor:
 void m_free(monitor **monitor)
 {
 	pthread_mutex_destroy(&((*monitor)->mutex));
-	pthread_cond_destroy(&((*monitor)->input_received));
 	free(*monitor);
 	*monitor = NULL;
 }

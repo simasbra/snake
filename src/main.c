@@ -30,6 +30,7 @@
 #include "snake.h"
 #include "threads.h"
 #include <ncurses.h>
+#include <stdlib.h>
 
 /*
  * Initializes ncurses
@@ -55,7 +56,12 @@ int main(void)
 	box(game_window, 0, 0);
 	wrefresh(game_window);
 
-	snake *snake = s_malloc(game_window);
+	struct timespec time;
+	clock_gettime(CLOCK_MONOTONIC, &time);
+	srand(time.tv_nsec);
+
+	snake *snake = s_malloc();
+	s_initialize(snake, game_window);
 	if (!snake) {
 		goto finalize_ncurses;
 	}

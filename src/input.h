@@ -37,4 +37,24 @@ void i_handle_input(monitor *const monitor);
  * Handles user pressed key
  * \RETURNS: 1 if valid, 0 if not
  */
-int i_handle_received_key(monitor *const monitor, const int value);
+short i_handle_received_key(monitor *const monitor, const int value);
+
+/*
+ * Handles key up input by telling snake to move up
+ */
+void i_handle_key_up(monitor *const monitor);
+
+/*
+ * Handles key down input by telling snake to move down
+ */
+void i_handle_key_down(monitor *const monitor);
+
+/*
+ * Handles key right input by telling snake to move right
+ */
+void i_handle_key_right(monitor *const monitor);
+
+/*
+ * Handles key left input by telling snake to move left
+ */
+void i_handle_key_left(monitor *const monitor);
