@@ -31,9 +31,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Monitor *m_malloc(void)
+monitor *m_malloc(void)
 {
-	Monitor *monitor = (Monitor *)malloc(sizeof(Monitor));
+	monitor *monitor = (struct monitor *)malloc(sizeof(struct monitor));
 	if (!monitor) {
 		fprintf(stderr, "ERROR: malloc failed for monitor allocation\n");
 		return NULL;
@@ -49,12 +49,12 @@ free_monitor:
 		free(monitor);
 		return NULL;
 	}
-	monitor->signal_type = SIGNAL_EMPTY;
+	monitor->signal = SIGNAL_EMPTY;
 
 	return monitor;
 }
 
-void m_free(Monitor **monitor)
+void m_free(monitor **monitor)
 {
 	pthread_mutex_destroy(&((*monitor)->mutex));
 	pthread_cond_destroy(&((*monitor)->input_received));

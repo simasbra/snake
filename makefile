@@ -29,5 +29,5 @@ $(O)/%.o: $(S)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf (OBJS)
+	rm -rf $(OBJS)
 	rm -rf snake.out

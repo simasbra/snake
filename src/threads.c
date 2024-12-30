@@ -36,26 +36,26 @@
 
 void *t_initalize_input(void *args)
 {
-	Monitor *monitor = (Monitor *)args;
+	struct monitor *monitor = (struct monitor *)args;
 	i_handle_input(monitor);
 	return NULL;
 }
 
 void *t_initalize_snake(void *args)
 {
-	SnakeArgs *snake_input = (SnakeArgs *)args;
+	snake_args *snake_input = (snake_args *)args;
 	s_handle_move(snake_input->snake, snake_input->monitor);
 	free(snake_input);
 	return NULL;
 }
 
-void t_initialize_threads(pthread_t *const threads, Monitor *const monitor, Snake *const snake)
+void t_initialize_threads(pthread_t *const threads, monitor *const monitor, snake *const snake)
 {
 	if (!threads || !monitor) {
 		return;
 	}
 
-	SnakeArgs *snake_input = (SnakeArgs *)malloc(sizeof(SnakeArgs));
+	snake_args *snake_input = (snake_args *)malloc(sizeof(snake_args));
 	if (!snake_input) {
 		return;
 	}

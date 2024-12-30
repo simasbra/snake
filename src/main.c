@@ -50,14 +50,16 @@ int main(void)
 	WINDOW *game_window = newwin(y_max - 1, x_max, 0, 0);
 	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
 	refresh();
-	wprintw(status_window, "Press q for pause or any other key to play\n");
+	wprintw(status_window, "Press q to exit or any other key to play\n");
 	wrefresh(status_window);
+	box(game_window, 0, 0);
+	wrefresh(game_window);
 
-	Snake *snake = s_malloc(game_window);
+	snake *snake = s_malloc(game_window);
 	if (!snake) {
 		goto finalize_ncurses;
 	}
-	Monitor *monitor = m_malloc();
+	monitor *monitor = m_malloc();
 	if (!monitor) {
 		goto finalize_snake;
 	}
@@ -81,6 +83,7 @@ void ncurses_initialize(void)
 	cbreak();
 	keypad(stdscr, 1);
 	curs_set(0);
+	halfdelay(1);
 }
 void ncurses_finalize(void)
 {

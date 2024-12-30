@@ -35,65 +35,81 @@
 #include <stddef.h>
 
 /*
+ * Snake move types
+ */
+typedef enum snake_move {
+	SNAKE_MOVE_UP,
+	SNAKE_MOVE_DOWN,
+	SNAKE_MOVE_RIGHT,
+	SNAKE_MOVE_LEFT
+} snake_move;
+
+/*
  * Struct for storing snake information
  */
-typedef struct Snake {
+typedef struct snake {
 	int x_head, y_head;
 	int x_max, y_max;
 	size_t length;
 	WINDOW *window;
+	enum snake_move last_move;
 	struct double_linked_list *body;
-} Snake;
+} snake;
 
 /*
  * Creates new snake object
  * \RETURNS: pointer to the newly created snake object
  */
-Snake *s_malloc(WINDOW *const game_window);
+snake *s_malloc(WINDOW *const game_window);
 
 /*
  * Frees the given snake object
  */
-void s_free(Snake **snake);
+void s_free(snake **snake);
 
 /*
  * Handles snake movement
  */
-void s_handle_move(Snake *const snake, Monitor *const monitor);
+void s_handle_move(snake *const snake, monitor *const monitor);
 
 /*
  * Handles received signal type from input
  */
-void s_handle_signal(Snake *const snake, Monitor *const monitor);
+void s_handle_signal(snake *const snake, monitor *const monitor);
 
 /*
  * Moves snake head up
  */
-void s_move_up(Snake *const snake);
+void s_move_up(snake *const snake);
 
 /*
  * Moves snake head down
  */
-void s_move_down(Snake *const snake);
+void s_move_down(snake *const snake);
 
 /*
  * Moves snake head to the right
  */
-void s_move_right(Snake *const snake);
+void s_move_right(snake *const snake);
 
 /*
  * Moves snake head to the left
  */
-void s_move_left(Snake *const snake);
+void s_move_left(snake *const snake);
+
+/*
+ * Moves snake head to the direction it's currently facing
+ */
+void s_move_previous(snake *const snake);
 
 /*
  * Checks if given coordinates are not out of bounds
  * and not inside snake body
  */
-int s_check_new_location(const Snake *const snake, int x, int y);
+int s_check_new_location(const snake *const snake, int x, int y);
 
 /*
  * Displays snake on the game window
  */
-void s_display(const Snake *const snake);
+void s_display(const snake *const snake);
 #endif

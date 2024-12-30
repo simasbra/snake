@@ -30,7 +30,7 @@
 #include "monitor.h"
 #include <ncurses.h>
 
-void i_handle_input(Monitor *const monitor)
+void i_handle_input(monitor *const monitor)
 {
 	int exit_received = 0;
 	while (!exit_received) {
@@ -46,26 +46,29 @@ void i_handle_input(Monitor *const monitor)
 	}
 }
 
-int i_handle_received_key(Monitor *const monitor, const int value)
+int i_handle_received_key(monitor *const monitor, const int value)
 {
 	switch (value) {
 	case (int)'q':
-		monitor->signal_type = SIGNAL_GAME_EXIT;
+		monitor->signal = SIGNAL_GAME_EXIT;
 		return 1;
 	case KEY_UP:
-		monitor->signal_type = SIGNAL_MOVE_UP;
+		monitor->signal = SIGNAL_MOVE_UP;
 		return 1;
 	case KEY_DOWN:
-		monitor->signal_type = SIGNAL_MOVE_DOWN;
+		monitor->signal = SIGNAL_MOVE_DOWN;
 		return 1;
 	case KEY_RIGHT:
-		monitor->signal_type = SIGNAL_MOVE_RIGHT;
+		monitor->signal = SIGNAL_MOVE_RIGHT;
 		return 1;
 	case KEY_LEFT:
-		monitor->signal_type = SIGNAL_MOVE_LEFT;
+		monitor->signal = SIGNAL_MOVE_LEFT;
+		return 1;
+	case -1:
+		monitor->signal = SIGNAL_MOVE_PREVIOUS;
 		return 1;
 	default:
-		monitor->signal_type = SIGNAL_EMPTY;
+		monitor->signal = SIGNAL_EMPTY;
 		return 0;
 	}
 }

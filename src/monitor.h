@@ -32,34 +32,35 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-typedef enum SignalType {
+typedef enum m_signal {
 	SIGNAL_EMPTY,
 	SIGNAL_MOVE_UP,
 	SIGNAL_MOVE_DOWN,
 	SIGNAL_MOVE_RIGHT,
 	SIGNAL_MOVE_LEFT,
+	SIGNAL_MOVE_PREVIOUS,
 	SIGNAL_GAME_RESUME,
 	SIGNAL_GAME_EXIT,
 	SIGNAL_TYPE_COUNT
-} Move;
+} m_signal;
 
-typedef enum ThreadType { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } ThreadType;
+typedef enum m_thread { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } m_thread;
 
-typedef struct Monitor {
+typedef struct monitor {
 	pthread_mutex_t mutex;
 	pthread_cond_t input_received;
-	enum SignalType signal_type;
-} Monitor;
+	enum m_signal signal;
+} monitor;
 
 /*
  * Creates a new monitor object
  * \RETURNS: A newly created monitor
  */
-Monitor *m_malloc(void);
+monitor *m_malloc(void);
 
 /*
  * Frees given monitor object
  */
-void m_free(Monitor **monitor);
+void m_free(monitor **monitor);
 
 #endif

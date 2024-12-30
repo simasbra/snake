@@ -27,16 +27,17 @@
  */
 
 #include "snake.h"
+#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-Snake *s_malloc(WINDOW *const game_window)
+snake *s_malloc(WINDOW *const game_window)
 {
 	if (!game_window) {
 		fprintf(stderr, "ERROR: game_window is NULL.\n");
 		return NULL;
 	}
-	struct Snake *snake = malloc(sizeof(struct Snake));
+	struct snake *snake = malloc(sizeof(struct snake));
 	if (!snake) {
 		perror("ERROR: Snake malloc failed\n");
 		return NULL;
@@ -54,11 +55,12 @@ Snake *s_malloc(WINDOW *const game_window)
 	snake->y_head = y_win / 2;
 	snake->x_max = x_win;
 	snake->y_max = y_win;
+	snake->last_move = SNAKE_MOVE_RIGHT;
 
 	return snake;
 }
 
-void s_free(Snake **snake)
+void s_free(snake **snake)
 {
 	if (!snake) {
 		fprintf(stderr, "ERROR: snake is NULL.\n");
@@ -72,7 +74,7 @@ void s_free(Snake **snake)
 	*snake = NULL;
 }
 
-void s_handle_move(Snake *const snake, Monitor *const monitor)
+void s_handle_move(snake *const snake, monitor *const monitor)
 {
 	if (!snake || !monitor) {
 		return;
@@ -81,25 +83,24 @@ void s_handle_move(Snake *const snake, Monitor *const monitor)
 	while (!exit_received) {
 		s_display(snake);
 		pthread_mutex_lock(&(monitor->mutex));
-		while (monitor->signal_type == SIGNAL_EMPTY) {
+		while (monitor->signal == SIGNAL_EMPTY) {
 			pthread_cond_wait(&(monitor->input_received), &(monitor->mutex));
 		}
-		/*wprintw(snake->window, "a");*/
-		if (monitor->signal_type == SIGNAL_GAME_EXIT) {
+		if (monitor->signal == SIGNAL_GAME_EXIT) {
 			exit_received = 1;
 		}
 		s_handle_signal(snake, monitor);
-		monitor->signal_type = SIGNAL_EMPTY;
+		monitor->signal = SIGNAL_EMPTY;
 		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
 
-void s_handle_signal(Snake *const snake, Monitor *const monitor)
+void s_handle_signal(snake *const snake, monitor *const monitor)
 {
 	if (!snake || !monitor) {
 		return;
 	}
-	switch (monitor->signal_type) {
+	switch (monitor->signal) {
 	case SIGNAL_MOVE_UP:
 		s_move_up(snake);
 		break;
@@ -112,12 +113,15 @@ void s_handle_signal(Snake *const snake, Monitor *const monitor)
 	case SIGNAL_MOVE_LEFT:
 		s_move_left(snake);
 		break;
+	case SIGNAL_MOVE_PREVIOUS:
+		s_move_previous(snake);
+		break;
 	default:
 		break;
 	}
 }
 
-void s_move_up(Snake *const snake)
+void s_move_up(snake *const snake)
 {
 	if (!snake) {
 		return;
@@ -126,9 +130,10 @@ void s_move_up(Snake *const snake)
 		return;
 	}
 	snake->y_head--;
+	snake->last_move = SNAKE_MOVE_UP;
 }
 
-void s_move_down(Snake *const snake)
+void s_move_down(snake *const snake)
 {
 	if (!snake) {
 		return;
@@ -137,9 +142,10 @@ void s_move_down(Snake *const snake)
 		return;
 	}
 	snake->y_head++;
+	snake->last_move = SNAKE_MOVE_DOWN;
 }
 
-void s_move_right(Snake *const snake)
+void s_move_right(snake *const snake)
 {
 	if (!snake) {
 		return;
@@ -147,10 +153,11 @@ void s_move_right(Snake *const snake)
 	if (s_check_new_location(snake, snake->x_head - 1, snake->y_head)) {
 		return;
 	}
-	snake->x_head--;
+	snake->x_head++;
+	snake->last_move = SNAKE_MOVE_RIGHT;
 }
 
-void s_move_left(Snake *const snake)
+void s_move_left(snake *const snake)
 {
 	if (!snake) {
 		return;
@@ -158,10 +165,33 @@ void s_move_left(Snake *const snake)
 	if (s_check_new_location(snake, snake->x_head + 1, snake->y_head)) {
 		return;
 	}
-	snake->x_head++;
+	snake->x_head--;
+	snake->last_move = SNAKE_MOVE_LEFT;
+}
+void s_move_previous(snake *const snake)
+{
+	if (!snake) {
+		return;
+	}
+	switch (snake->last_move) {
+	case SNAKE_MOVE_UP:
+		s_move_up(snake);
+		break;
+	case SNAKE_MOVE_DOWN:
+		s_move_down(snake);
+		break;
+	case SNAKE_MOVE_RIGHT:
+		s_move_right(snake);
+		break;
+	case SNAKE_MOVE_LEFT:
+		s_move_left(snake);
+		break;
+	default:
+		break;
+	}
 }
 
-int s_check_new_location(const Snake *const snake, int x, int y)
+int s_check_new_location(const snake *const snake, int x, int y)
 {
 	if (!snake) {
 		return 1;
@@ -175,11 +205,11 @@ int s_check_new_location(const Snake *const snake, int x, int y)
 	return 0;
 }
 
-void s_display(const Snake *const snake)
+void s_display(const snake *const snake)
 {
 	if (!snake) {
 		return;
 	}
 	mvwaddch(snake->window, snake->y_head, snake->x_head, '@');
-	/*mvwaddch(snake->window, snake->y_head, snake->x_head, L'■');*/
+	wrefresh(snake->window);
 }

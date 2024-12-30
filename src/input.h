@@ -31,10 +31,10 @@
 /*
  * Handles user input
  */
-void i_handle_input(Monitor *const monitor);
+void i_handle_input(monitor *const monitor);
 
 /*
  * Handles user pressed key
  * \RETURNS: 1 if valid, 0 if not
  */
-int i_handle_received_key(Monitor *const monitor, const int value);
+int i_handle_received_key(monitor *const monitor, const int value);
