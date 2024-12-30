@@ -1,9 +1,9 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
+ * FILE: monitor.h
+ * TITLE: Thread handling monitor
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
+ * DESCRIPTION: Thread handling monitor header file
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -26,67 +26,41 @@
  * SOFTWARE.
  */
 
-#include "monitor.h"
-#include "snake.h"
-#include "threads.h"
-#include <ncurses.h>
+#ifndef __MONITOR_H__
+#define __MONITOR_H__
+
+#include <pthread.h>
+#include <stdlib.h>
+
+typedef enum m_signal {
+	SIGNAL_EMPTY,
+	SIGNAL_MOVE_UP,
+	SIGNAL_MOVE_DOWN,
+	SIGNAL_MOVE_RIGHT,
+	SIGNAL_MOVE_LEFT,
+	SIGNAL_MOVE_PREVIOUS,
+	SIGNAL_GAME_RESUME,
+	SIGNAL_GAME_EXIT,
+	SIGNAL_TYPE_COUNT
+} m_signal;
+
+typedef enum m_thread { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } m_thread;
+
+typedef struct monitor {
+	pthread_mutex_t mutex;
+	pthread_cond_t input_received;
+	enum m_signal signal;
+} monitor;
 
 /*
- * Initializes ncurses
+ * Creates a new monitor object
+ * \RETURNS: A newly created monitor
  */
-void ncurses_initialize(void);
+monitor *m_malloc(void);
 
 /*
- * Finalizes ncurses
+ * Frees given monitor object
  */
-void ncurses_finalize(void);
+void m_free(monitor **monitor);
 
-int main(void)
-{
-	ncurses_initialize();
-
-	int y_max, x_max;
-	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 1, x_max, 0, 0);
-	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
-	refresh();
-	wprintw(status_window, "Press q to exit or any other key to play\n");
-	wrefresh(status_window);
-	box(game_window, 0, 0);
-	wrefresh(game_window);
-
-	snake *snake = s_malloc(game_window);
-	if (!snake) {
-		goto finalize_ncurses;
-	}
-	monitor *monitor = m_malloc();
-	if (!monitor) {
-		goto finalize_snake;
-	}
-
-	pthread_t threads[THREAD_TYPE_COUNT];
-	t_initialize_threads(threads, monitor, snake);
-	t_finalize_threads(threads);
-
-	m_free(&monitor);
-finalize_snake:
-	s_free(&snake);
-finalize_ncurses:
-	ncurses_finalize();
-	return 0;
-}
-
-void ncurses_initialize(void)
-{
-	initscr();
-	noecho();
-	cbreak();
-	keypad(stdscr, 1);
-	curs_set(0);
-	halfdelay(1);
-}
-void ncurses_finalize(void)
-{
-	curs_set(1);
-	endwin();
-}
+#endif

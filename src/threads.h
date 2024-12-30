@@ -1,9 +1,9 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
+ * FILE: threads.h
+ * TITLE: Thread handling
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
+ * DESCRIPTION: Thread handling implementation
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -26,67 +26,35 @@
  * SOFTWARE.
  */
 
-#include "monitor.h"
+#ifndef __MONITOR_T__
+#define __MONITOR_T__
+
 #include "snake.h"
-#include "threads.h"
-#include <ncurses.h>
+#include <pthread.h>
+
+typedef struct snake_args {
+	monitor *monitor;
+	snake *snake;
+} snake_args;
 
 /*
- * Initializes ncurses
+ * Initializes input handling thread
  */
-void ncurses_initialize(void);
+void *t_initalize_input(void *args);
 
 /*
- * Finalizes ncurses
+ * Initializes snake movement handling thread
  */
-void ncurses_finalize(void);
+void *t_initalize_snake(void *args);
 
-int main(void)
-{
-	ncurses_initialize();
+/*
+ * Initializes threads by giving jobs to them
+ */
+void t_initialize_threads(pthread_t *const threads, monitor *const monitor, snake *const snake);
 
-	int y_max, x_max;
-	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 1, x_max, 0, 0);
-	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
-	refresh();
-	wprintw(status_window, "Press q to exit or any other key to play\n");
-	wrefresh(status_window);
-	box(game_window, 0, 0);
-	wrefresh(game_window);
+/*
+ * Finalizes threads by joining them
+ */
+void t_finalize_threads(pthread_t *const threads);
 
-	snake *snake = s_malloc(game_window);
-	if (!snake) {
-		goto finalize_ncurses;
-	}
-	monitor *monitor = m_malloc();
-	if (!monitor) {
-		goto finalize_snake;
-	}
-
-	pthread_t threads[THREAD_TYPE_COUNT];
-	t_initialize_threads(threads, monitor, snake);
-	t_finalize_threads(threads);
-
-	m_free(&monitor);
-finalize_snake:
-	s_free(&snake);
-finalize_ncurses:
-	ncurses_finalize();
-	return 0;
-}
-
-void ncurses_initialize(void)
-{
-	initscr();
-	noecho();
-	cbreak();
-	keypad(stdscr, 1);
-	curs_set(0);
-	halfdelay(1);
-}
-void ncurses_finalize(void)
-{
-	curs_set(1);
-	endwin();
-}
+#endif

@@ -1,9 +1,9 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
+ * FILE: monitor.c
+ * TITLE: Thread handling monitor
  * AUTHOR: Simas Bradaitis <simasbra@proton.me>
  * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
+ * DESCRIPTION: Thread handling monitor implementation
  *
  * Copyright (c) 2024 Simas Bradaitis
  *
@@ -27,66 +27,37 @@
  */
 
 #include "monitor.h"
-#include "snake.h"
-#include "threads.h"
-#include <ncurses.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-/*
- * Initializes ncurses
- */
-void ncurses_initialize(void);
-
-/*
- * Finalizes ncurses
- */
-void ncurses_finalize(void);
-
-int main(void)
+monitor *m_malloc(void)
 {
-	ncurses_initialize();
-
-	int y_max, x_max;
-	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 1, x_max, 0, 0);
-	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
-	refresh();
-	wprintw(status_window, "Press q to exit or any other key to play\n");
-	wrefresh(status_window);
-	box(game_window, 0, 0);
-	wrefresh(game_window);
-
-	snake *snake = s_malloc(game_window);
-	if (!snake) {
-		goto finalize_ncurses;
-	}
-	monitor *monitor = m_malloc();
+	monitor *monitor = (struct monitor *)malloc(sizeof(struct monitor));
 	if (!monitor) {
-		goto finalize_snake;
+		fprintf(stderr, "ERROR: malloc failed for monitor allocation\n");
+		return NULL;
 	}
+	if (pthread_mutex_init(&(monitor->mutex), NULL) != 0) {
+		fprintf(stderr, "ERROR: mutex creation failed\n");
+		goto free_monitor;
+	}
+	if (pthread_cond_init(&(monitor->input_received), NULL) != 0) {
+		fprintf(stderr, "ERROR: mutex creation failed\n");
+		pthread_mutex_destroy(&(monitor->mutex));
+free_monitor:
+		free(monitor);
+		return NULL;
+	}
+	monitor->signal = SIGNAL_EMPTY;
 
-	pthread_t threads[THREAD_TYPE_COUNT];
-	t_initialize_threads(threads, monitor, snake);
-	t_finalize_threads(threads);
-
-	m_free(&monitor);
-finalize_snake:
-	s_free(&snake);
-finalize_ncurses:
-	ncurses_finalize();
-	return 0;
+	return monitor;
 }
 
-void ncurses_initialize(void)
+void m_free(monitor **monitor)
 {
-	initscr();
-	noecho();
-	cbreak();
-	keypad(stdscr, 1);
-	curs_set(0);
-	halfdelay(1);
-}
-void ncurses_finalize(void)
-{
-	curs_set(1);
-	endwin();
+	pthread_mutex_destroy(&((*monitor)->mutex));
+	pthread_cond_destroy(&((*monitor)->input_received));
+	free(*monitor);
+	*monitor = NULL;
 }

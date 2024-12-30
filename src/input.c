@@ -25,3 +25,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+#include "input.h"
+#include "monitor.h"
+#include <ncurses.h>
+
+void i_handle_input(monitor *const monitor)
+{
+	int exit_received = 0;
+	while (!exit_received) {
+		int value = getch();
+		if (value == (int)'q') {
+			exit_received = 1;
+		}
+		pthread_mutex_lock(&(monitor->mutex));
+		if (i_handle_received_key(monitor, value)) {
+			pthread_cond_signal(&(monitor->input_received));
+		}
+		pthread_mutex_unlock(&(monitor->mutex));
+	}
+}
+
+int i_handle_received_key(monitor *const monitor, const int value)
+{
+	switch (value) {
+	case (int)'q':
+		monitor->signal = SIGNAL_GAME_EXIT;
+		return 1;
+	case KEY_UP:
+		monitor->signal = SIGNAL_MOVE_UP;
+		return 1;
+	case KEY_DOWN:
+		monitor->signal = SIGNAL_MOVE_DOWN;
+		return 1;
+	case KEY_RIGHT:
+		monitor->signal = SIGNAL_MOVE_RIGHT;
+		return 1;
+	case KEY_LEFT:
+		monitor->signal = SIGNAL_MOVE_LEFT;
+		return 1;
+	case -1:
+		monitor->signal = SIGNAL_MOVE_PREVIOUS;
+		return 1;
+	default:
+		monitor->signal = SIGNAL_EMPTY;
+		return 0;
+	}
+}
