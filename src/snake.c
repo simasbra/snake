@@ -194,7 +194,9 @@ void s_display(const snake *const snake)
 	if (!snake) {
 		return;
 	}
-	mvwaddch(snake->window, snake->head.y, snake->head.x, '@');
+	wattron(snake->window, COLOR_PAIR(1));
+	mvwaddch(snake->window, snake->head.y, snake->head.x, ACS_BLOCK);
+	wattroff(snake->window, COLOR_PAIR(1));
 	wrefresh(snake->window);
 }
 
@@ -211,7 +213,9 @@ void s_generate_food(snake *const snake)
 	}
 	snake->food.x = rand() % (snake->max.x - 2) + 1;
 	snake->food.y = rand() % (snake->max.y - 2) + 1;
+	wattron(snake->window, COLOR_PAIR(2));
 	mvwaddch(snake->window, snake->food.y, snake->food.x, '*');
+	wattroff(snake->window, COLOR_PAIR(2));
 }
 
 short s_check_food(const snake *const snake)

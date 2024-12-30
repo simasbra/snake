@@ -30,6 +30,7 @@
 #include "snake.h"
 #include "threads.h"
 #include <ncurses.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /*
@@ -90,6 +91,14 @@ void ncurses_initialize(void)
 	keypad(stdscr, 1);
 	curs_set(0);
 	halfdelay(1);
+	if (has_colors()) {
+		start_color();
+		init_pair(1, COLOR_GREEN, COLOR_BLACK);
+		init_pair(2, COLOR_RED, COLOR_BLACK);
+	} else {
+		fprintf(stderr, "ERROR: Terminal does not support colors\n");
+		exit(EXIT_FAILURE);
+	}
 }
 void ncurses_finalize(void)
 {

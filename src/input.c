@@ -67,7 +67,7 @@ short i_handle_received_key(monitor *const monitor, const int value)
 		i_handle_key_left(monitor);
 		return 1;
 	case -1:
-		return 1;
+		return 0;
 	default:
 		monitor->signal = SIGNAL_EMPTY;
 		return 0;
