@@ -37,22 +37,28 @@
 /*
  * Snake move types
  */
-typedef enum snake_move {
+typedef enum s_snake_move {
 	SNAKE_MOVE_UP,
 	SNAKE_MOVE_DOWN,
 	SNAKE_MOVE_RIGHT,
 	SNAKE_MOVE_LEFT
-} snake_move;
+} s_snake_move;
+
+typedef struct s_coordinates {
+	int x;
+	int y;
+} s_coordinates;
 
 /*
  * Struct for storing snake information
  */
 typedef struct snake {
-	int x_head, y_head;
-	int x_max, y_max;
+	struct s_coordinates head;
+	struct s_coordinates max;
+	struct s_coordinates food;
 	size_t length;
 	WINDOW *window;
-	enum snake_move last_move;
+	enum s_snake_move last_move;
 	struct double_linked_list *body;
 } snake;
 
@@ -112,4 +118,26 @@ int s_check_new_location(const snake *const snake, int x, int y);
  * Displays snake on the game window
  */
 void s_display(const snake *const snake);
+
+/*
+ * Clears snakes tail to whitespace
+ */
+void s_clear_tail(const snake *const snake);
+
+/*
+ * Generates snake food
+ */
+void s_generate_food(snake *const snake);
+
+/*
+ * Checks if snakes head is on food
+ * \RETURNS: 1 if it is on food, 0 if not
+ */
+int s_check_food(const snake *const snake);
+
+/*
+ * Handles checks if snake eating food and handles it
+ */
+void s_handle_food(snake *const snake);
+
 #endif

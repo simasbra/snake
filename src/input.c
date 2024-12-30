@@ -53,15 +53,19 @@ int i_handle_received_key(monitor *const monitor, const int value)
 		monitor->signal = SIGNAL_GAME_EXIT;
 		return 1;
 	case KEY_UP:
+	case (int)'w':
 		monitor->signal = SIGNAL_MOVE_UP;
 		return 1;
 	case KEY_DOWN:
+	case (int)'r':
 		monitor->signal = SIGNAL_MOVE_DOWN;
 		return 1;
 	case KEY_RIGHT:
+	case (int)'s':
 		monitor->signal = SIGNAL_MOVE_RIGHT;
 		return 1;
 	case KEY_LEFT:
+	case (int)'a':
 		monitor->signal = SIGNAL_MOVE_LEFT;
 		return 1;
 	case -1:
