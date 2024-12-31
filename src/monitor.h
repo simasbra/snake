@@ -26,7 +26,7 @@
 #include <pthread.h>
 
 /*
- * Signal type when conditional is sent/received
+ * Signal type when to the snake thread when a key is pressed
  */
 typedef enum m_signal_snake {
 	SIGNAL_SNAKE_EMPTY,
@@ -35,6 +35,9 @@ typedef enum m_signal_snake {
 	SIGNAL_SNAKE_COUNT
 } m_signal_snake;
 
+/*
+ * Signal type when conditional is sent to the windows thread
+ */
 typedef enum m_signal_windows {
 	SIGNAL_WINDOWS_EMPTY,
 	SIGNAL_WINDOWS_GAME_EXIT,
