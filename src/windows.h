@@ -72,7 +72,7 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 /*
  * Displays snake on the game window
  */
-void w_snake_display_snake(windows *const windows, snake *const snake);
+void w_snake_display_snake(windows *const windows, const snake *const snake);
 
 /*
  * Displays snakes food on the game window
@@ -82,6 +82,6 @@ void w_snake_display_food(windows *const windows, const snake *const snake);
 /*
  * Clears snakes tail to whitespace in the game window
  */
-void w_snake_clear_tail(windows *const windows, snake *const snake);
+void w_snake_clear_tail(windows *const windows, const snake *const snake);
 
 #endif

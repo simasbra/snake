@@ -117,8 +117,9 @@ short s_check_food(const snake *const snake);
 
 /*
  * Handles checks if snake eating food and handles it
+ * \RETURNS: 1 if snake ate food, 0 if not
  */
-void s_handle_food(snake *const snake, monitor *const monitor);
+short s_handle_food(snake *const snake);
 
 /*
  * Signals windows to update the screen depending on signal type

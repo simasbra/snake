@@ -48,12 +48,13 @@ void s_initialize(snake *const snake, WINDOW *const game_window)
 	getmaxyx(game_window, y_win, x_win);
 	s_coordinates head = { x_win / 2, y_win / 2 };
 	s_coordinates max = { x_win, y_win };
-	s_coordinates food = { -1, -1 };
+	s_coordinates tail = { -1, -1 };
 
 	snake->head = head;
 	snake->max = max;
-	snake->food = food;
+	snake->tail = tail;
 	snake->score = 0;
+	s_generate_food(snake);
 
 	dll_push_beginning(snake->body, &head, sizeof(struct s_coordinates));
 }
@@ -78,9 +79,7 @@ void s_move(snake *const snake, monitor *const monitor)
 		return;
 	}
 
-	s_generate_food(snake);
 	s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
-
 	struct timespec sleep_time;
 	sleep_time.tv_sec = 0;
 	sleep_time.tv_nsec = 1e8;
@@ -92,7 +91,11 @@ void s_move(snake *const snake, monitor *const monitor)
 			break;
 		}
 		pthread_mutex_unlock(&(monitor->mutex));
-		s_handle_food(snake, monitor);
+		if (s_handle_food(snake)) {
+			s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
+		} else {
+			s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_REFRESH);
+		}
 		nanosleep(&sleep_time, NULL);
 	}
 }
@@ -232,24 +235,23 @@ short s_check_food(const snake *const snake)
 	return 0;
 }
 
-void s_handle_food(snake *const snake, monitor *const monitor)
+short s_handle_food(snake *const snake)
 {
 	if (!snake) {
-		return;
+		return 0;
 	}
-
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
 		s_generate_food(snake);
-		s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
+		return 1;
 	} else {
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);
 		if (!tail) {
-			return;
+			return 0;
 		}
 		snake->tail = *tail;
-		s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_REFRESH);
 		free(tail);
+		return 0;
 	}
 }
 
