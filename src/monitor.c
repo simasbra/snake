@@ -32,6 +32,11 @@ monitor *m_malloc(void)
 	}
 	if (pthread_mutex_init(&(monitor->mutex), NULL) != 0) {
 		fprintf(stderr, "ERROR: mutex creation failed\n");
+		goto m_monitor_free;
+	}
+	if (pthread_cond_init(&(monitor->conditional), NULL) != 0) {
+		pthread_mutex_destroy(&(monitor->mutex));
+m_monitor_free:
 		free(monitor);
 		return NULL;
 	}
@@ -41,7 +46,8 @@ monitor *m_malloc(void)
 
 void m_initialize(monitor *const monitor)
 {
-	monitor->signal = SIGNAL_EMPTY;
+	monitor->signal_snake = SIGNAL_SNAKE_MOVE;
+	monitor->signal_windows = SIGNAL_WINDOWS_EMPTY;
 	monitor->move_next[0] = SNAKE_MOVE_EMPTY;
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = SNAKE_MOVE_RIGHT;
@@ -50,6 +56,7 @@ void m_initialize(monitor *const monitor)
 void m_free(monitor **monitor)
 {
 	pthread_mutex_destroy(&((*monitor)->mutex));
+	pthread_cond_destroy(&((*monitor)->conditional));
 	free(*monitor);
 	*monitor = NULL;
 }

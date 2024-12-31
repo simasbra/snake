@@ -23,81 +23,47 @@
 #include "monitor.h"
 #include "snake.h"
 #include "threads.h"
+#include "windows.h"
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
- * Initializes ncurses
- */
-void ncurses_initialize(void);
-
-/*
- * Finalizes ncurses
- */
-void ncurses_finalize(void);
-
 int main(void)
 {
-	ncurses_initialize();
-
-	int y_max, x_max;
-	getmaxyx(stdscr, y_max, x_max);
-	WINDOW *game_window = newwin(y_max - 1, x_max, 0, 0);
-	WINDOW *status_window = newwin(1, x_max, y_max - 1, 0);
-	refresh();
-	wprintw(status_window, "Press q to exit or any other key to play\n");
-	wrefresh(status_window);
-	box(game_window, 0, 0);
-	wrefresh(game_window);
+	w_ncurses_initialize();
 
 	struct timespec time;
 	clock_gettime(CLOCK_MONOTONIC, &time);
 	srand(time.tv_nsec);
 
+	windows *windows = w_malloc();
+	if (!windows) {
+		goto main_finalize_ncurses;
+	}
+	w_initialize(windows);
+
 	snake *snake = s_malloc();
 	if (!snake) {
-		goto finalize_ncurses;
+		goto main_finalize_windows;
 	}
-	s_initialize(snake, game_window);
+	s_initialize(snake, windows->game);
 
 	monitor *monitor = m_malloc();
 	if (!monitor) {
-		goto finalize_snake;
+		goto main_finalize_snake;
 	}
 	m_initialize(monitor);
 
 	pthread_t threads[THREAD_TYPE_COUNT];
-	t_initialize_threads(threads, monitor, snake);
+	t_initialize_threads(threads, monitor, snake, windows);
 	t_finalize_threads(threads);
 
 	m_free(&monitor);
-finalize_snake:
+main_finalize_snake:
 	s_free(&snake);
-finalize_ncurses:
-	ncurses_finalize();
+main_finalize_windows:
+	w_free(&windows);
+main_finalize_ncurses:
+	w_ncurses_finalize();
 	return 0;
-}
-
-void ncurses_initialize(void)
-{
-	initscr();
-	noecho();
-	cbreak();
-	keypad(stdscr, 1);
-	curs_set(0);
-	halfdelay(1);
-	if (has_colors()) {
-		start_color();
-		init_pair(1, COLOR_GREEN, COLOR_BLACK);
-		init_pair(2, COLOR_RED, COLOR_BLACK);
-	} else {
-		fprintf(stderr, "ERROR: Terminal does not support colors\n");
-		exit(EXIT_FAILURE);
-	}
-}
-void ncurses_finalize(void)
-{
-	curs_set(1);
-	endwin();
 }

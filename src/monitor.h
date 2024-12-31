@@ -26,14 +26,25 @@
 #include <pthread.h>
 
 /*
- * Signal type when conditional is sent/received
+ * Signal type when to the snake thread when a key is pressed
  */
-typedef enum m_signal {
-	SIGNAL_EMPTY,
-	SIGNAL_GAME_RESUME,
-	SIGNAL_GAME_EXIT,
-	SIGNAL_TYPE_COUNT
-} m_signal;
+typedef enum m_signal_snake {
+	SIGNAL_SNAKE_EMPTY,
+	SIGNAL_SNAKE_GAME_EXIT,
+	SIGNAL_SNAKE_MOVE,
+	SIGNAL_SNAKE_COUNT
+} m_signal_snake;
+
+/*
+ * Signal type when conditional is sent to the windows thread
+ */
+typedef enum m_signal_windows {
+	SIGNAL_WINDOWS_EMPTY,
+	SIGNAL_WINDOWS_GAME_EXIT,
+	SIGNAL_WINDOWS_SNAKE_REFRESH,
+	SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH,
+	SIGNAL_WINDOWS_COUNT
+} m_signal_windows;
 
 /*
  * Snake move types
@@ -47,16 +58,13 @@ typedef enum m_snake_move {
 } m_snake_move;
 
 /*
- * Thread types
- */
-typedef enum m_thread { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } m_thread;
-
-/*
  * Monitor shared between threads
  */
 typedef struct monitor {
 	pthread_mutex_t mutex;
-	enum m_signal signal;
+	pthread_cond_t conditional;
+	enum m_signal_snake signal_snake;
+	enum m_signal_windows signal_windows;
 	enum m_snake_move move_previous;
 	enum m_snake_move move_next[2];
 } monitor;

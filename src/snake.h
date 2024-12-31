@@ -38,9 +38,9 @@ typedef struct s_coordinates {
  */
 typedef struct snake {
 	struct s_coordinates head;
+	struct s_coordinates tail;
 	struct s_coordinates max;
 	struct s_coordinates food;
-	WINDOW *window;
 	unsigned int score;
 	struct double_linked_list *body;
 } snake;
@@ -76,7 +76,7 @@ short s_handle_signal(snake *const snake, monitor *const monitor);
  * Handles specified snake move
  * \RETUNRS: 1 if move was valid, 0 if not
  */
-short s_handle_move(snake *const snake, enum m_snake_move move);
+void s_handle_move(snake *const snake, monitor *const monitor);
 
 /*
  * Moves snake head up
@@ -105,16 +105,6 @@ void s_move_left(snake *const snake);
 short s_check_new_location(const snake *const snake, int x, int y);
 
 /*
- * Displays snake on the game window
- */
-void s_display(const snake *const snake);
-
-/*
- * Clears snakes tail to whitespace
- */
-void s_clear_tail(const snake *const snake);
-
-/*
  * Generates snake food
  */
 void s_generate_food(snake *const snake);
@@ -127,7 +117,13 @@ short s_check_food(const snake *const snake);
 
 /*
  * Handles checks if snake eating food and handles it
+ * \RETURNS: 1 if snake ate food, 0 if not
  */
-void s_handle_food(snake *const snake);
+short s_handle_food(snake *const snake);
+
+/*
+ * Signals windows to update the screen depending on signal type
+ */
+void s_signal_windows(monitor *const monitor, enum m_signal_windows signal);
 
 #endif

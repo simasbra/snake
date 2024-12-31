@@ -20,60 +20,68 @@
  * SOFTWARE.
  */
 
-#ifndef __MONITOR_T__
-#define __MONITOR_T__
+#ifndef __WINDOWS_H__
+#define __WINDOWS_H__
 
 #include "snake.h"
 #include "monitor.h"
-#include "windows.h"
-#include <pthread.h>
+#include <ncurses.h>
+
+typedef struct windows {
+	WINDOW *game;
+	WINDOW *status;
+	WINDOW *menu;
+} windows;
 
 /*
- * Thread types
+ * Creates new windows object
+ * \RETURNS: pointer to the newly created windows object
  */
-typedef enum w_thread { THREAD_INPUT, THREAD_GAME, THREAD_WINDOWS, THREAD_TYPE_COUNT } w_thread;
+struct windows *w_malloc(void);
 
 /*
- * Arguments for snake thread
+ * Initializes snake with default values
  */
-typedef struct snake_args {
-	monitor *monitor;
-	snake *snake;
-} snake_args;
+void w_initialize(struct windows *const windows);
 
 /*
- * Arguments for windows thread
+ * Frees the given windows object
  */
-typedef struct windows_args {
-	monitor *monitor;
-	snake *snake;
-	windows *windows;
-} windows_args;
+void w_free(struct windows **windows);
 
 /*
- * Initializes input handling thread
+ * Initializes ncurses
  */
-void *t_initialize_input(void *args);
+void w_ncurses_initialize(void);
 
 /*
- * Initializes snake movement handling thread
+ * Finalizes ncurses
  */
-void *t_initialize_snake(void *args);
+void w_ncurses_finalize(void);
 
 /*
- * Initializes windows displaying thread;
+ * Handles windows displaying
  */
-void *t_initialize_windows(void *args);
+void w_display(windows *const windows, monitor *const monitor, snake *const snake);
 
 /*
- * Initializes threads by giving jobs to them
+ * Handles received signal
  */
-void t_initialize_threads(pthread_t *const threads, monitor *const monitor, snake *const snake,
-			  windows *const windows);
+short w_handle_signal(windows *const windows, monitor *const monitor, snake *const snake);
 
 /*
- * Finalizes threads by joining them
+ * Displays snake on the game window
  */
-void t_finalize_threads(pthread_t *const threads);
+void w_snake_display_snake(windows *const windows, const snake *const snake);
+
+/*
+ * Displays snakes food on the game window
+ */
+void w_snake_display_food(windows *const windows, const snake *const snake);
+
+/*
+ * Clears snakes tail to whitespace in the game window
+ */
+void w_snake_clear_tail(windows *const windows, const snake *const snake);
 
 #endif
