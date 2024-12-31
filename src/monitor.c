@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,9 +42,9 @@ monitor *m_malloc(void)
 void m_initialize(monitor *const monitor)
 {
 	monitor->signal = SIGNAL_EMPTY;
-	monitor->move_next = SNAKE_MOVE_RIGHT;
+	monitor->move_next[0] = SNAKE_MOVE_EMPTY;
+	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = SNAKE_MOVE_RIGHT;
-	monitor->score = 0;
 }
 
 void m_free(monitor **monitor)

@@ -56,6 +56,7 @@ void s_initialize(snake *const snake, WINDOW *const game_window)
 	snake->head = head;
 	snake->max = max;
 	snake->food = food;
+	snake->score = 0;
 
 	dll_push_beginning(snake->body, &head, sizeof(struct s_coordinates));
 }
@@ -102,7 +103,13 @@ void s_handle_signal(snake *const snake, monitor *const monitor)
 	if (!snake || !monitor) {
 		return;
 	}
-	switch (monitor->move_next) {
+	enum m_snake_move move = SNAKE_MOVE_EMPTY;
+	if (monitor->move_next[0] != SNAKE_MOVE_EMPTY) {
+		move = monitor->move_next[0];
+	} else {
+		move = monitor->move_previous;
+	}
+	switch (move) {
 	case SNAKE_MOVE_UP:
 		s_move_up(snake);
 		break;
@@ -116,9 +123,12 @@ void s_handle_signal(snake *const snake, monitor *const monitor)
 		s_move_left(snake);
 		break;
 	default:
-		break;
+		return;
 	}
-	monitor->move_previous = monitor->move_next;
+	monitor->move_next[0] = monitor->move_next[1];
+	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
+	monitor->move_previous = move;
+	snake->score++;
 }
 
 void s_move_up(snake *const snake)

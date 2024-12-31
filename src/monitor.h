@@ -39,6 +39,7 @@ typedef enum m_signal {
  * Snake move types
  */
 typedef enum m_snake_move {
+	SNAKE_MOVE_EMPTY,
 	SNAKE_MOVE_UP,
 	SNAKE_MOVE_DOWN,
 	SNAKE_MOVE_RIGHT,
@@ -57,8 +58,7 @@ typedef struct monitor {
 	pthread_mutex_t mutex;
 	enum m_signal signal;
 	enum m_snake_move move_previous;
-	enum m_snake_move move_next;
-	unsigned int score;
+	enum m_snake_move move_next[2];
 } monitor;
 
 /*

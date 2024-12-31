@@ -41,6 +41,7 @@ typedef struct snake {
 	struct s_coordinates max;
 	struct s_coordinates food;
 	WINDOW *window;
+	unsigned int score;
 	struct double_linked_list *body;
 } snake;
 

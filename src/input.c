@@ -73,12 +73,10 @@ void i_handle_key_up(monitor *const monitor)
 	if (!monitor) {
 		return;
 	}
-	switch (monitor->move_previous) {
-	case SNAKE_MOVE_DOWN:
-	case SNAKE_MOVE_UP:
+	if (monitor->move_previous == SNAKE_MOVE_DOWN) {
 		return;
-	default:
-		monitor->move_next = SNAKE_MOVE_UP;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_UP);
 	}
 }
 
@@ -87,12 +85,10 @@ void i_handle_key_down(monitor *const monitor)
 	if (!monitor) {
 		return;
 	}
-	switch (monitor->move_previous) {
-	case SNAKE_MOVE_UP:
-	case SNAKE_MOVE_DOWN:
+	if (monitor->move_previous == SNAKE_MOVE_UP) {
 		return;
-	default:
-		monitor->move_next = SNAKE_MOVE_DOWN;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_DOWN);
 	}
 }
 
@@ -101,12 +97,10 @@ void i_handle_key_right(monitor *const monitor)
 	if (!monitor) {
 		return;
 	}
-	switch (monitor->move_previous) {
-	case SNAKE_MOVE_RIGHT:
-	case SNAKE_MOVE_LEFT:
+	if (monitor->move_previous == SNAKE_MOVE_LEFT) {
 		return;
-	default:
-		monitor->move_next = SNAKE_MOVE_RIGHT;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_RIGHT);
 	}
 }
 
@@ -115,11 +109,22 @@ void i_handle_key_left(monitor *const monitor)
 	if (!monitor) {
 		return;
 	}
-	switch (monitor->move_previous) {
-	case SNAKE_MOVE_LEFT:
-	case SNAKE_MOVE_RIGHT:
+	if (monitor->move_previous == SNAKE_MOVE_RIGHT) {
 		return;
-	default:
-		monitor->move_next = SNAKE_MOVE_LEFT;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_LEFT);
+	}
+}
+
+void i_add_next_move(monitor *const monitor, const enum m_snake_move move)
+{
+	if (!monitor || move == SNAKE_MOVE_EMPTY) {
+		return;
+	}
+
+	if (monitor->move_next[0] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->move_next[0] = move;
+	} else if (monitor->move_next[1] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->move_next[1] = move;
 	}
 }

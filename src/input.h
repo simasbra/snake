@@ -52,3 +52,8 @@ void i_handle_key_right(monitor *const monitor);
  * Handles key left input by telling snake to move left
  */
 void i_handle_key_left(monitor *const monitor);
+
+/*
+ * Adds next move to the input array
+ */
+void i_add_next_move(monitor *const monitor, const enum m_snake_move move);
