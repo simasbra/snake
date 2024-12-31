@@ -68,12 +68,13 @@ void s_move(snake *const snake, monitor *const monitor);
 
 /*
  * Handles received signal type from input
+ * \RETURNS: 1 if exit was signaled, 0 if not
  */
-void s_handle_signal(snake *const snake, monitor *const monitor);
+short s_handle_signal(snake *const snake, monitor *const monitor);
 
 /*
  * Handles specified snake move
- * /RETUNRS: 1 if move was valid, 0 if not
+ * \RETUNRS: 1 if move was valid, 0 if not
  */
 short s_handle_move(snake *const snake, enum m_snake_move move);
 

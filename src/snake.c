@@ -42,8 +42,7 @@ snake *s_malloc(void)
 
 void s_initialize(snake *const snake, WINDOW *const game_window)
 {
-	if (!game_window) {
-		fprintf(stderr, "ERROR: game_window is NULL.\n");
+	if (!snake || !game_window) {
 		return;
 	}
 	int y_win, x_win;
@@ -87,37 +86,47 @@ void s_move(snake *const snake, monitor *const monitor)
 	while (1) {
 		s_display(snake);
 		pthread_mutex_lock(&(monitor->mutex));
-		if (monitor->signal == SIGNAL_GAME_EXIT) {
-			monitor->signal = SIGNAL_EMPTY;
+		if (s_handle_signal(snake, monitor)) {
+			pthread_mutex_unlock(&(monitor->mutex));
 			break;
 		}
-		s_handle_signal(snake, monitor);
 		pthread_mutex_unlock(&(monitor->mutex));
 		s_handle_food(snake);
 		nanosleep(&sleep_time, NULL);
 	}
 }
 
-void s_handle_signal(snake *const snake, monitor *const monitor)
+short s_handle_signal(snake *const snake, monitor *const monitor)
 {
 	if (!snake || !monitor) {
-		return;
+		return 0;
 	}
+	if (monitor->signal == SIGNAL_GAME_EXIT) {
+		monitor->signal = SIGNAL_EMPTY;
+		return 1;
+	}
+
 	enum m_snake_move move = SNAKE_MOVE_EMPTY;
 	if (monitor->move_next[0] != SNAKE_MOVE_EMPTY) {
 		move = monitor->move_next[0];
 	} else {
 		move = monitor->move_previous;
 	}
+
 	if (s_handle_move(snake, move)) {
 		monitor->move_next[0] = monitor->move_next[1];
 		monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 		monitor->move_previous = move;
 		snake->score++;
 	}
+	return 0;
 }
+
 short s_handle_move(snake *const snake, enum m_snake_move move)
 {
+	if (!snake) {
+		return 0;
+	}
 	switch (move) {
 	case SNAKE_MOVE_UP:
 		s_move_up(snake);
@@ -211,6 +220,9 @@ void s_display(const snake *const snake)
 void s_clear_tail(const snake *const snake)
 {
 	s_coordinates *tail = (struct s_coordinates *)snake->body->tail->data;
+	if (!tail) {
+		return;
+	}
 	mvwaddch(snake->window, tail->y, tail->x, ' ');
 }
 
@@ -249,6 +261,9 @@ void s_handle_food(snake *const snake)
 	} else {
 		s_clear_tail(snake);
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);
+		if (!tail) {
+			return;
+		}
 		free(tail);
 	}
 }
