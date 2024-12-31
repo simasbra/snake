@@ -42,7 +42,8 @@ short i_handle_received_key(monitor *const monitor, const int value)
 {
 	switch (value) {
 	case (int)'q':
-		monitor->signal = SIGNAL_GAME_EXIT;
+		monitor->signal_snake = SIGNAL_SNAKE_GAME_EXIT;
+		monitor->signal_windows = SIGNAL_WINDOWS_GAME_EXIT;
 		return 1;
 	case KEY_UP:
 	case (int)'w':
@@ -63,7 +64,7 @@ short i_handle_received_key(monitor *const monitor, const int value)
 	case -1:
 		return 0;
 	default:
-		monitor->signal = SIGNAL_EMPTY;
+		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
 		return 0;
 	}
 }

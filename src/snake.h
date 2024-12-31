@@ -40,7 +40,6 @@ typedef struct snake {
 	struct s_coordinates head;
 	struct s_coordinates max;
 	struct s_coordinates food;
-	WINDOW *window;
 	unsigned int score;
 	struct double_linked_list *body;
 } snake;
@@ -105,16 +104,6 @@ void s_move_left(snake *const snake);
 short s_check_new_location(const snake *const snake, int x, int y);
 
 /*
- * Displays snake on the game window
- */
-void s_display(const snake *const snake);
-
-/*
- * Clears snakes tail to whitespace
- */
-void s_clear_tail(const snake *const snake);
-
-/*
  * Generates snake food
  */
 void s_generate_food(snake *const snake);
@@ -128,6 +117,6 @@ short s_check_food(const snake *const snake);
 /*
  * Handles checks if snake eating food and handles it
  */
-void s_handle_food(snake *const snake);
+void s_handle_food(snake *const snake, monitor *const monitor);
 
 #endif

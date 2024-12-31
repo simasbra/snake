@@ -28,12 +28,22 @@
 /*
  * Signal type when conditional is sent/received
  */
-typedef enum m_signal {
-	SIGNAL_EMPTY,
-	SIGNAL_GAME_RESUME,
-	SIGNAL_GAME_EXIT,
-	SIGNAL_TYPE_COUNT
-} m_signal;
+typedef enum m_signal_snake {
+	SIGNAL_SNAKE_EMPTY,
+	SIGNAL_SNAKE_GAME_RESUME,
+	SIGNAL_SNAKE_GAME_EXIT,
+	SIGNAL_SNAKE_COUNT
+} m_signal_snake;
+
+typedef enum m_signal_windows {
+	SIGNAL_WINDOWS_EMPTY,
+	SIGNAL_WINDOWS_GAME_RESUME,
+	SIGNAL_WINDOWS_GAME_EXIT,
+	SIGNAL_WINDOWS_REFRESH_SNAKE,
+	SIGNAL_WINDOWS_REFRESH_FOOD,
+	SIGNAL_WINDOWS_REFRESH_STATUS,
+	SIGNAL_WINDOWS_COUNT
+} m_signal_windows;
 
 /*
  * Snake move types
@@ -47,16 +57,13 @@ typedef enum m_snake_move {
 } m_snake_move;
 
 /*
- * Thread types
- */
-typedef enum m_thread { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } m_thread;
-
-/*
  * Monitor shared between threads
  */
 typedef struct monitor {
 	pthread_mutex_t mutex;
-	enum m_signal signal;
+	pthread_cond_t conditional;
+	enum m_signal_snake signal_snake;
+	enum m_signal_windows signal_windows;
 	enum m_snake_move move_previous;
 	enum m_snake_move move_next[2];
 } monitor;

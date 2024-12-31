@@ -18,6 +18,7 @@ OBJS = $(O)/double_linked_list.o \
 	$(O)/input.o \
 	$(O)/monitor.o \
 	$(O)/threads.o \
+	$(O)/windows.o
 
 # Rules
 all: snake

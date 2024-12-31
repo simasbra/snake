@@ -51,7 +51,6 @@ void s_initialize(snake *const snake, WINDOW *const game_window)
 	s_coordinates max = { x_win, y_win };
 	s_coordinates food = { -1, -1 };
 
-	snake->window = game_window;
 	snake->head = head;
 	snake->max = max;
 	snake->food = food;
@@ -83,15 +82,20 @@ void s_move(snake *const snake, monitor *const monitor)
 	struct timespec sleep_time;
 	sleep_time.tv_sec = 0;
 	sleep_time.tv_nsec = 1e8;
+	pthread_mutex_lock(&(monitor->mutex));
+	monitor->signal_windows = SIGNAL_WINDOWS_REFRESH_FOOD;
+	pthread_cond_signal(&(monitor->conditional));
+	pthread_mutex_unlock(&(monitor->mutex));
 	while (1) {
-		s_display(snake);
 		pthread_mutex_lock(&(monitor->mutex));
+		monitor->signal_windows = SIGNAL_WINDOWS_REFRESH_SNAKE;
+		pthread_cond_signal(&(monitor->conditional));
 		if (s_handle_signal(snake, monitor)) {
 			pthread_mutex_unlock(&(monitor->mutex));
 			break;
 		}
 		pthread_mutex_unlock(&(monitor->mutex));
-		s_handle_food(snake);
+		s_handle_food(snake, monitor);
 		nanosleep(&sleep_time, NULL);
 	}
 }
@@ -101,8 +105,8 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 	if (!snake || !monitor) {
 		return 0;
 	}
-	if (monitor->signal == SIGNAL_GAME_EXIT) {
-		monitor->signal = SIGNAL_EMPTY;
+	if (monitor->signal_snake == SIGNAL_SNAKE_GAME_EXIT) {
+		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
 		return 1;
 	}
 
@@ -206,26 +210,6 @@ short s_check_new_location(const snake *const snake, int x, int y)
 	return 1;
 }
 
-void s_display(const snake *const snake)
-{
-	if (!snake) {
-		return;
-	}
-	wattron(snake->window, COLOR_PAIR(1));
-	mvwaddch(snake->window, snake->head.y, snake->head.x, ACS_BLOCK);
-	wattroff(snake->window, COLOR_PAIR(1));
-	wrefresh(snake->window);
-}
-
-void s_clear_tail(const snake *const snake)
-{
-	s_coordinates *tail = (struct s_coordinates *)snake->body->tail->data;
-	if (!tail) {
-		return;
-	}
-	mvwaddch(snake->window, tail->y, tail->x, ' ');
-}
-
 void s_generate_food(snake *const snake)
 {
 	if (!snake) {
@@ -233,9 +217,6 @@ void s_generate_food(snake *const snake)
 	}
 	snake->food.x = rand() % (snake->max.x - 2) + 1;
 	snake->food.y = rand() % (snake->max.y - 2) + 1;
-	wattron(snake->window, COLOR_PAIR(2));
-	mvwaddch(snake->window, snake->food.y, snake->food.x, '*');
-	wattroff(snake->window, COLOR_PAIR(2));
 }
 
 short s_check_food(const snake *const snake)
@@ -249,7 +230,7 @@ short s_check_food(const snake *const snake)
 	return 0;
 }
 
-void s_handle_food(snake *const snake)
+void s_handle_food(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
@@ -258,8 +239,11 @@ void s_handle_food(snake *const snake)
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
 		s_generate_food(snake);
+		pthread_mutex_lock(&(monitor->mutex));
+		monitor->signal_windows = SIGNAL_WINDOWS_REFRESH_FOOD;
+		pthread_cond_signal(&(monitor->conditional));
+		pthread_mutex_unlock(&(monitor->mutex));
 	} else {
-		s_clear_tail(snake);
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);
 		if (!tail) {
 			return;

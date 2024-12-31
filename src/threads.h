@@ -24,27 +24,52 @@
 #define __MONITOR_T__
 
 #include "snake.h"
+#include "monitor.h"
+#include "windows.h"
 #include <pthread.h>
 
+/*
+ * Thread types
+ */
+typedef enum w_thread { THREAD_INPUT, THREAD_GAME, THREAD_WINDOWS, THREAD_TYPE_COUNT } w_thread;
+
+/*
+ * Arguments for snake thread
+ */
 typedef struct snake_args {
 	monitor *monitor;
 	snake *snake;
 } snake_args;
 
 /*
+ * Arguments for windows thread
+ */
+typedef struct windows_args {
+	monitor *monitor;
+	snake *snake;
+	windows *windows;
+} windows_args;
+
+/*
  * Initializes input handling thread
  */
-void *t_initalize_input(void *args);
+void *t_initialize_input(void *args);
 
 /*
  * Initializes snake movement handling thread
  */
-void *t_initalize_snake(void *args);
+void *t_initialize_snake(void *args);
+
+/*
+ * Initializes windows displaying thread;
+ */
+void *t_initialize_windows(void *args);
 
 /*
  * Initializes threads by giving jobs to them
  */
-void t_initialize_threads(pthread_t *const threads, monitor *const monitor, snake *const snake);
+void t_initialize_threads(pthread_t *const threads, monitor *const monitor, snake *const snake,
+			  windows *const windows);
 
 /*
  * Finalizes threads by joining them
