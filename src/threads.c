@@ -38,7 +38,7 @@ void *t_initalize_input(void *args)
 void *t_initalize_snake(void *args)
 {
 	snake_args *snake_input = (snake_args *)args;
-	s_handle_move(snake_input->snake, snake_input->monitor);
+	s_move(snake_input->snake, snake_input->monitor);
 	free(snake_input);
 	return NULL;
 }

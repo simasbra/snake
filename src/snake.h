@@ -62,14 +62,20 @@ void s_initialize(snake *const snake, WINDOW *const game_window);
 void s_free(snake **snake);
 
 /*
- * Handles snake movement
+ * Controls snake movement
  */
-void s_handle_move(snake *const snake, monitor *const monitor);
+void s_move(snake *const snake, monitor *const monitor);
 
 /*
  * Handles received signal type from input
  */
 void s_handle_signal(snake *const snake, monitor *const monitor);
+
+/*
+ * Handles specified snake move
+ * /RETUNRS: 1 if move was valid, 0 if not
+ */
+short s_handle_move(snake *const snake, enum m_snake_move move);
 
 /*
  * Moves snake head up

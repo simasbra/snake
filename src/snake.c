@@ -75,7 +75,7 @@ void s_free(snake **snake)
 	*snake = NULL;
 }
 
-void s_handle_move(snake *const snake, monitor *const monitor)
+void s_move(snake *const snake, monitor *const monitor)
 {
 	if (!snake || !monitor) {
 		return;
@@ -109,26 +109,31 @@ void s_handle_signal(snake *const snake, monitor *const monitor)
 	} else {
 		move = monitor->move_previous;
 	}
+	if (s_handle_move(snake, move)) {
+		monitor->move_next[0] = monitor->move_next[1];
+		monitor->move_next[1] = SNAKE_MOVE_EMPTY;
+		monitor->move_previous = move;
+		snake->score++;
+	}
+}
+short s_handle_move(snake *const snake, enum m_snake_move move)
+{
 	switch (move) {
 	case SNAKE_MOVE_UP:
 		s_move_up(snake);
-		break;
+		return 1;
 	case SNAKE_MOVE_DOWN:
 		s_move_down(snake);
-		break;
+		return 1;
 	case SNAKE_MOVE_RIGHT:
 		s_move_right(snake);
-		break;
+		return 1;
 	case SNAKE_MOVE_LEFT:
 		s_move_left(snake);
-		break;
+		return 1;
 	default:
-		return;
+		return 0;
 	}
-	monitor->move_next[0] = monitor->move_next[1];
-	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
-	monitor->move_previous = move;
-	snake->score++;
 }
 
 void s_move_up(snake *const snake)
