@@ -1,10 +1,4 @@
 /*
- * FILE: snake.c
- * TITLE: Snake logic handling
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Snake movement, death and other logic handling
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,18 +21,12 @@
  */
 
 #include "snake.h"
-#include "double_linked_list.h"
 #include "monitor.h"
 #include <stdlib.h>
-#include <sys/time.h>
 #include <stdio.h>
 
-snake *s_malloc(WINDOW *const game_window)
+snake *s_malloc(void)
 {
-	if (!game_window) {
-		fprintf(stderr, "ERROR: game_window is NULL.\n");
-		return NULL;
-	}
 	struct snake *snake = malloc(sizeof(struct snake));
 	if (!snake) {
 		perror("ERROR: Snake malloc failed\n");
@@ -49,6 +37,14 @@ snake *s_malloc(WINDOW *const game_window)
 		free(snake);
 		return NULL;
 	}
+	return snake;
+}
+
+void s_initialize(snake *const snake, WINDOW *const game_window)
+{
+	if (!snake || !game_window) {
+		return;
+	}
 	int y_win, x_win;
 	getmaxyx(game_window, y_win, x_win);
 	s_coordinates head = { x_win / 2, y_win / 2 };
@@ -56,14 +52,12 @@ snake *s_malloc(WINDOW *const game_window)
 	s_coordinates food = { -1, -1 };
 
 	snake->window = game_window;
-	snake->length = 1;
 	snake->head = head;
 	snake->max = max;
 	snake->food = food;
-	snake->last_move = SNAKE_MOVE_RIGHT;
+	snake->score = 0;
 
 	dll_push_beginning(snake->body, &head, sizeof(struct s_coordinates));
-	return snake;
 }
 
 void s_free(snake **snake)
@@ -80,53 +74,75 @@ void s_free(snake **snake)
 	*snake = NULL;
 }
 
-void s_handle_move(snake *const snake, monitor *const monitor)
+void s_move(snake *const snake, monitor *const monitor)
 {
 	if (!snake || !monitor) {
 		return;
 	}
 	s_generate_food(snake);
-	int exit_received = 0;
-	while (!exit_received) {
+	struct timespec sleep_time;
+	sleep_time.tv_sec = 0;
+	sleep_time.tv_nsec = 1e8;
+	while (1) {
 		s_display(snake);
 		pthread_mutex_lock(&(monitor->mutex));
-		while (monitor->signal == SIGNAL_EMPTY) {
-			pthread_cond_wait(&(monitor->input_received), &(monitor->mutex));
+		if (s_handle_signal(snake, monitor)) {
+			pthread_mutex_unlock(&(monitor->mutex));
+			break;
 		}
-		if (monitor->signal == SIGNAL_GAME_EXIT) {
-			exit_received = 1;
-		}
-		s_handle_signal(snake, monitor);
 		pthread_mutex_unlock(&(monitor->mutex));
 		s_handle_food(snake);
+		nanosleep(&sleep_time, NULL);
 	}
 }
 
-void s_handle_signal(snake *const snake, monitor *const monitor)
+short s_handle_signal(snake *const snake, monitor *const monitor)
 {
 	if (!snake || !monitor) {
-		return;
+		return 0;
 	}
-	switch (monitor->signal) {
-	case SIGNAL_MOVE_UP:
+	if (monitor->signal == SIGNAL_GAME_EXIT) {
+		monitor->signal = SIGNAL_EMPTY;
+		return 1;
+	}
+
+	enum m_snake_move move = SNAKE_MOVE_EMPTY;
+	if (monitor->move_next[0] != SNAKE_MOVE_EMPTY) {
+		move = monitor->move_next[0];
+	} else {
+		move = monitor->move_previous;
+	}
+
+	if (s_handle_move(snake, move)) {
+		monitor->move_next[0] = monitor->move_next[1];
+		monitor->move_next[1] = SNAKE_MOVE_EMPTY;
+		monitor->move_previous = move;
+		snake->score++;
+	}
+	return 0;
+}
+
+short s_handle_move(snake *const snake, enum m_snake_move move)
+{
+	if (!snake) {
+		return 0;
+	}
+	switch (move) {
+	case SNAKE_MOVE_UP:
 		s_move_up(snake);
-		break;
-	case SIGNAL_MOVE_DOWN:
+		return 1;
+	case SNAKE_MOVE_DOWN:
 		s_move_down(snake);
-		break;
-	case SIGNAL_MOVE_RIGHT:
+		return 1;
+	case SNAKE_MOVE_RIGHT:
 		s_move_right(snake);
-		break;
-	case SIGNAL_MOVE_LEFT:
+		return 1;
+	case SNAKE_MOVE_LEFT:
 		s_move_left(snake);
-		break;
-	case SIGNAL_MOVE_PREVIOUS:
-		s_move_previous(snake);
-		break;
+		return 1;
 	default:
-		break;
+		return 0;
 	}
-	monitor->signal = SIGNAL_EMPTY;
 }
 
 void s_move_up(snake *const snake)
@@ -138,7 +154,6 @@ void s_move_up(snake *const snake)
 		return;
 	}
 	snake->head.y--;
-	snake->last_move = SNAKE_MOVE_UP;
 }
 
 void s_move_down(snake *const snake)
@@ -150,7 +165,6 @@ void s_move_down(snake *const snake)
 		return;
 	}
 	snake->head.y++;
-	snake->last_move = SNAKE_MOVE_DOWN;
 }
 
 void s_move_right(snake *const snake)
@@ -162,7 +176,6 @@ void s_move_right(snake *const snake)
 		return;
 	}
 	snake->head.x++;
-	snake->last_move = SNAKE_MOVE_RIGHT;
 }
 
 void s_move_left(snake *const snake)
@@ -174,33 +187,9 @@ void s_move_left(snake *const snake)
 		return;
 	}
 	snake->head.x--;
-	snake->last_move = SNAKE_MOVE_LEFT;
 }
 
-void s_move_previous(snake *const snake)
-{
-	if (!snake) {
-		return;
-	}
-	switch (snake->last_move) {
-	case SNAKE_MOVE_UP:
-		s_move_up(snake);
-		break;
-	case SNAKE_MOVE_DOWN:
-		s_move_down(snake);
-		break;
-	case SNAKE_MOVE_RIGHT:
-		s_move_right(snake);
-		break;
-	case SNAKE_MOVE_LEFT:
-		s_move_left(snake);
-		break;
-	default:
-		break;
-	}
-}
-
-int s_check_new_location(const snake *const snake, int x, int y)
+short s_check_new_location(const snake *const snake, int x, int y)
 {
 	if (!snake) {
 		return 0;
@@ -222,13 +211,18 @@ void s_display(const snake *const snake)
 	if (!snake) {
 		return;
 	}
-	mvwaddch(snake->window, snake->head.y, snake->head.x, '@');
+	wattron(snake->window, COLOR_PAIR(1));
+	mvwaddch(snake->window, snake->head.y, snake->head.x, ACS_BLOCK);
+	wattroff(snake->window, COLOR_PAIR(1));
 	wrefresh(snake->window);
 }
 
 void s_clear_tail(const snake *const snake)
 {
-	s_coordinates *tail = (struct s_coordinates *)dll_get_index(snake->body, snake->length);
+	s_coordinates *tail = (struct s_coordinates *)snake->body->tail->data;
+	if (!tail) {
+		return;
+	}
 	mvwaddch(snake->window, tail->y, tail->x, ' ');
 }
 
@@ -237,15 +231,14 @@ void s_generate_food(snake *const snake)
 	if (!snake) {
 		return;
 	}
-	struct timeval time;
-	gettimeofday(&time, NULL);
-	srand(time.tv_usec);
 	snake->food.x = rand() % (snake->max.x - 2) + 1;
 	snake->food.y = rand() % (snake->max.y - 2) + 1;
+	wattron(snake->window, COLOR_PAIR(2));
 	mvwaddch(snake->window, snake->food.y, snake->food.x, '*');
+	wattroff(snake->window, COLOR_PAIR(2));
 }
 
-int s_check_food(const snake *const snake)
+short s_check_food(const snake *const snake)
 {
 	if (!snake) {
 		return 0;
@@ -264,11 +257,13 @@ void s_handle_food(snake *const snake)
 
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
-		snake->length++;
 		s_generate_food(snake);
 	} else {
 		s_clear_tail(snake);
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);
+		if (!tail) {
+			return;
+		}
 		free(tail);
 	}
 }

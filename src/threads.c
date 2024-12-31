@@ -1,10 +1,4 @@
 /*
- * FILE: threads.h
- * TITLE: Thread handling
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Thread handling header file
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -44,7 +38,7 @@ void *t_initalize_input(void *args)
 void *t_initalize_snake(void *args)
 {
 	snake_args *snake_input = (snake_args *)args;
-	s_handle_move(snake_input->snake, snake_input->monitor);
+	s_move(snake_input->snake, snake_input->monitor);
 	free(snake_input);
 	return NULL;
 }

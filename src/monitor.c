@@ -1,11 +1,4 @@
 /*
- * FILE: monitor.c
- * TITLE: Thread handling monitor
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Thread handling monitor implementation
- *
- * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +20,6 @@
  */
 
 #include "monitor.h"
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -40,24 +32,24 @@ monitor *m_malloc(void)
 	}
 	if (pthread_mutex_init(&(monitor->mutex), NULL) != 0) {
 		fprintf(stderr, "ERROR: mutex creation failed\n");
-		goto free_monitor;
-	}
-	if (pthread_cond_init(&(monitor->input_received), NULL) != 0) {
-		fprintf(stderr, "ERROR: mutex creation failed\n");
-		pthread_mutex_destroy(&(monitor->mutex));
-free_monitor:
 		free(monitor);
 		return NULL;
 	}
-	monitor->signal = SIGNAL_EMPTY;
 
 	return monitor;
+}
+
+void m_initialize(monitor *const monitor)
+{
+	monitor->signal = SIGNAL_EMPTY;
+	monitor->move_next[0] = SNAKE_MOVE_EMPTY;
+	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
+	monitor->move_previous = SNAKE_MOVE_RIGHT;
 }
 
 void m_free(monitor **monitor)
 {
 	pthread_mutex_destroy(&((*monitor)->mutex));
-	pthread_cond_destroy(&((*monitor)->input_received));
 	free(*monitor);
 	*monitor = NULL;
 }

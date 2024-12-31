@@ -1,10 +1,4 @@
 /*
- * FILE: monitor.h
- * TITLE: Thread handling monitor
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Thread handling monitor header file
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,26 +24,41 @@
 #define __MONITOR_H__
 
 #include <pthread.h>
-#include <stdlib.h>
 
+/*
+ * Signal type when conditional is sent/received
+ */
 typedef enum m_signal {
 	SIGNAL_EMPTY,
-	SIGNAL_MOVE_UP,
-	SIGNAL_MOVE_DOWN,
-	SIGNAL_MOVE_RIGHT,
-	SIGNAL_MOVE_LEFT,
-	SIGNAL_MOVE_PREVIOUS,
 	SIGNAL_GAME_RESUME,
 	SIGNAL_GAME_EXIT,
 	SIGNAL_TYPE_COUNT
 } m_signal;
 
+/*
+ * Snake move types
+ */
+typedef enum m_snake_move {
+	SNAKE_MOVE_EMPTY,
+	SNAKE_MOVE_UP,
+	SNAKE_MOVE_DOWN,
+	SNAKE_MOVE_RIGHT,
+	SNAKE_MOVE_LEFT
+} m_snake_move;
+
+/*
+ * Thread types
+ */
 typedef enum m_thread { THREAD_INPUT, THREAD_GAME, THREAD_TYPE_COUNT } m_thread;
 
+/*
+ * Monitor shared between threads
+ */
 typedef struct monitor {
 	pthread_mutex_t mutex;
-	pthread_cond_t input_received;
 	enum m_signal signal;
+	enum m_snake_move move_previous;
+	enum m_snake_move move_next[2];
 } monitor;
 
 /*
@@ -57,6 +66,11 @@ typedef struct monitor {
  * \RETURNS: A newly created monitor
  */
 monitor *m_malloc(void);
+
+/*
+ * Initializes monitor with default values
+ */
+void m_initialize(monitor *const monitor);
 
 /*
  * Frees given monitor object

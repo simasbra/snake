@@ -1,10 +1,4 @@
 /*
- * FILE: main.c
- * TITLE: Game entrance point
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: The entrance point for the snake game
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,6 +24,8 @@
 #include "snake.h"
 #include "threads.h"
 #include <ncurses.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /*
  * Initializes ncurses
@@ -55,14 +51,21 @@ int main(void)
 	box(game_window, 0, 0);
 	wrefresh(game_window);
 
-	snake *snake = s_malloc(game_window);
+	struct timespec time;
+	clock_gettime(CLOCK_MONOTONIC, &time);
+	srand(time.tv_nsec);
+
+	snake *snake = s_malloc();
 	if (!snake) {
 		goto finalize_ncurses;
 	}
+	s_initialize(snake, game_window);
+
 	monitor *monitor = m_malloc();
 	if (!monitor) {
 		goto finalize_snake;
 	}
+	m_initialize(monitor);
 
 	pthread_t threads[THREAD_TYPE_COUNT];
 	t_initialize_threads(threads, monitor, snake);
@@ -84,6 +87,14 @@ void ncurses_initialize(void)
 	keypad(stdscr, 1);
 	curs_set(0);
 	halfdelay(1);
+	if (has_colors()) {
+		start_color();
+		init_pair(1, COLOR_GREEN, COLOR_BLACK);
+		init_pair(2, COLOR_RED, COLOR_BLACK);
+	} else {
+		fprintf(stderr, "ERROR: Terminal does not support colors\n");
+		exit(EXIT_FAILURE);
+	}
 }
 void ncurses_finalize(void)
 {

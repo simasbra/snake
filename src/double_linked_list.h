@@ -1,10 +1,4 @@
 /*
- * FILE: double_linked_list.h
- * TITLE: Double linked list library
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Contains all functions declarations for the double linked list management
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

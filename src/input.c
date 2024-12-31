@@ -1,10 +1,4 @@
 /*
- * FILE: input.c
- * TITLE: Input handling
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Input handling inplementation
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,14 +33,12 @@ void i_handle_input(monitor *const monitor)
 			exit_received = 1;
 		}
 		pthread_mutex_lock(&(monitor->mutex));
-		if (i_handle_received_key(monitor, value)) {
-			pthread_cond_signal(&(monitor->input_received));
-		}
+		i_handle_received_key(monitor, value);
 		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
 
-int i_handle_received_key(monitor *const monitor, const int value)
+short i_handle_received_key(monitor *const monitor, const int value)
 {
 	switch (value) {
 	case (int)'q':
@@ -54,25 +46,85 @@ int i_handle_received_key(monitor *const monitor, const int value)
 		return 1;
 	case KEY_UP:
 	case (int)'w':
-		monitor->signal = SIGNAL_MOVE_UP;
+		i_handle_key_up(monitor);
 		return 1;
 	case KEY_DOWN:
 	case (int)'r':
-		monitor->signal = SIGNAL_MOVE_DOWN;
+		i_handle_key_down(monitor);
 		return 1;
 	case KEY_RIGHT:
 	case (int)'s':
-		monitor->signal = SIGNAL_MOVE_RIGHT;
+		i_handle_key_right(monitor);
 		return 1;
 	case KEY_LEFT:
 	case (int)'a':
-		monitor->signal = SIGNAL_MOVE_LEFT;
+		i_handle_key_left(monitor);
 		return 1;
 	case -1:
-		monitor->signal = SIGNAL_MOVE_PREVIOUS;
-		return 1;
+		return 0;
 	default:
 		monitor->signal = SIGNAL_EMPTY;
 		return 0;
+	}
+}
+
+void i_handle_key_up(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	if (monitor->move_previous == SNAKE_MOVE_DOWN) {
+		return;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_UP);
+	}
+}
+
+void i_handle_key_down(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	if (monitor->move_previous == SNAKE_MOVE_UP) {
+		return;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_DOWN);
+	}
+}
+
+void i_handle_key_right(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	if (monitor->move_previous == SNAKE_MOVE_LEFT) {
+		return;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_RIGHT);
+	}
+}
+
+void i_handle_key_left(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	if (monitor->move_previous == SNAKE_MOVE_RIGHT) {
+		return;
+	} else {
+		i_add_next_move(monitor, SNAKE_MOVE_LEFT);
+	}
+}
+
+void i_add_next_move(monitor *const monitor, const enum m_snake_move move)
+{
+	if (!monitor || move == SNAKE_MOVE_EMPTY) {
+		return;
+	}
+
+	if (monitor->move_next[0] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->move_next[0] = move;
+	} else if (monitor->move_next[1] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->move_next[1] = move;
 	}
 }

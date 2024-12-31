@@ -1,10 +1,4 @@
 /*
- * FILE: double_linked_list.c
- * TITLE: Double linked list library
- * AUTHOR: Simas Bradaitis <simasbra@proton.me>
- * VERSION: 0.1.0
- * DESCRIPTION: Contains all functions implementations for the double linked list management.
- *
  * Copyright (c) 2024 Simas Bradaitis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -128,7 +122,7 @@ void dll_push_beginning(double_linked_list *const linked_list, void *data, size_
 	}
 
 	new_node->previous = NULL;
-	if (linked_list->head) {
+	if (linked_list->head && linked_list->tail) {
 		linked_list->head->previous = new_node;
 		new_node->next = linked_list->head;
 		linked_list->head = new_node;
@@ -152,7 +146,7 @@ void dll_push_end(double_linked_list *const linked_list, void *data, size_t size
 	}
 
 	new_node->next = NULL;
-	if (linked_list->tail) {
+	if (linked_list->tail && linked_list->head) {
 		new_node->previous = linked_list->tail;
 		linked_list->tail->next = new_node;
 	} else {
@@ -205,11 +199,12 @@ void *dll_pop_end(double_linked_list *const linked_list)
 	}
 
 	dll_node *node = linked_list->tail;
-	if (!linked_list->head->next) {
+	if (linked_list->head == linked_list->tail) {
 		linked_list->head = NULL;
 		linked_list->tail = NULL;
 	} else {
 		linked_list->tail = node->previous;
+		linked_list->tail->next = NULL;
 	}
 
 	void *data = node->data;
@@ -225,11 +220,12 @@ void *dll_pop_beginning(double_linked_list *const linked_list)
 	}
 
 	dll_node *node = linked_list->head;
-	if (!linked_list->head->next) {
+	if (linked_list->head == linked_list->tail) {
 		linked_list->head = NULL;
 		linked_list->tail = NULL;
 	} else {
 		linked_list->head = linked_list->head->next;
+		linked_list->head->previous = NULL;
 	}
 
 	void *data = node->data;
