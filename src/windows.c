@@ -127,7 +127,7 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 
 void w_snake_display_snake(windows *const windows, const snake *const snake)
 {
-	if (!snake) {
+	if (!windows || !snake) {
 		return;
 	}
 	wattron(windows->game, COLOR_PAIR(1));
@@ -137,6 +137,12 @@ void w_snake_display_snake(windows *const windows, const snake *const snake)
 
 void w_snake_display_food(windows *const windows, const snake *const snake)
 {
+	if (!windows || !snake) {
+		return;
+	}
+	if (snake->food.x == -1 && snake->food.y == -1) {
+		return;
+	}
 	wattron(windows->game, COLOR_PAIR(2));
 	mvwaddch(windows->game, snake->food.y, snake->food.x, '*');
 	wattroff(windows->game, COLOR_PAIR(2));
@@ -144,5 +150,8 @@ void w_snake_display_food(windows *const windows, const snake *const snake)
 
 void w_snake_clear_tail(windows *const windows, const snake *const snake)
 {
+	if (!windows || !snake) {
+		return;
+	}
 	mvwaddch(windows->game, snake->tail.y, snake->tail.x, ' ');
 }

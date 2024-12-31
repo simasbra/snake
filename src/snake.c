@@ -21,6 +21,7 @@
  */
 
 #include "snake.h"
+#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -257,6 +258,9 @@ short s_handle_food(snake *const snake)
 
 void s_signal_windows(monitor *const monitor, enum m_signal_windows signal)
 {
+	if (!monitor || signal == SIGNAL_WINDOWS_EMPTY) {
+		return;
+	}
 	pthread_mutex_lock(&(monitor->mutex));
 	monitor->signal_windows = signal;
 	pthread_cond_signal(&(monitor->conditional));
