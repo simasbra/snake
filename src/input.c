@@ -21,7 +21,6 @@
  */
 
 #include "input.h"
-#include "monitor.h"
 #include <ncurses.h>
 
 void i_handle_input(monitor *const monitor)
@@ -124,8 +123,10 @@ void i_add_next_move(monitor *const monitor, const enum m_snake_move move)
 	}
 
 	if (monitor->move_next[0] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->signal_snake = SIGNAL_SNAKE_MOVE;
 		monitor->move_next[0] = move;
 	} else if (monitor->move_next[1] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->signal_snake = SIGNAL_SNAKE_MOVE;
 		monitor->move_next[1] = move;
 	}
 }

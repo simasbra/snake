@@ -21,7 +21,7 @@
  */
 
 #include "windows.h"
-#include "monitor.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -80,7 +80,7 @@ void w_ncurses_finalize(void)
 	endwin();
 }
 
-void w_display(windows *const windows, monitor *const monitor, const snake *const snake)
+void w_display(windows *const windows, monitor *const monitor, snake *const snake)
 {
 	if (!windows || !monitor || !snake) {
 		return;
@@ -91,12 +91,14 @@ void w_display(windows *const windows, monitor *const monitor, const snake *cons
 		while (monitor->signal_windows == SIGNAL_WINDOWS_EMPTY) {
 			pthread_cond_wait(&(monitor->conditional), &(monitor->mutex));
 		}
-		w_handle_signal(windows, monitor, snake);
+		if (monitor->signal_windows != SIGNAL_WINDOWS_EMPTY) {
+			w_handle_signal(windows, monitor, snake);
+		}
 		pthread_mutex_unlock(&(monitor->mutex));
 	}
 }
 
-short w_handle_signal(windows *const windows, monitor *const monitor, const snake *const snake)
+short w_handle_signal(windows *const windows, monitor *const monitor, snake *const snake)
 {
 	if (!windows || !monitor || !snake) {
 		return 0;
@@ -104,18 +106,24 @@ short w_handle_signal(windows *const windows, monitor *const monitor, const snak
 	switch (monitor->signal_windows) {
 	case SIGNAL_WINDOWS_GAME_EXIT:
 		return 1;
-	case SIGNAL_WINDOWS_REFRESH_SNAKE:
+	case SIGNAL_WINDOWS_SNAKE_REFRESH:
 		w_snake_display_snake(windows, snake);
-		return 0;
-	case SIGNAL_WINDOWS_REFRESH_FOOD:
+		break;
+	case SIGNAL_WINDOWS_FOOD_REFRESH:
 		w_snake_display_food(windows, snake);
-		return 0;
+		break;
+	case SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH:
+		w_snake_display_snake(windows, snake);
+		w_snake_display_food(windows, snake);
+		break;
 	default:
-		return 0;
+		break;
 	}
+	monitor->signal_windows = SIGNAL_WINDOWS_EMPTY;
+	return 0;
 }
 
-void w_snake_display_snake(windows *const windows, const snake *const snake)
+void w_snake_display_snake(windows *const windows, snake *const snake)
 {
 	if (!snake) {
 		return;
@@ -123,6 +131,9 @@ void w_snake_display_snake(windows *const windows, const snake *const snake)
 	wattron(windows->game, COLOR_PAIR(1));
 	mvwaddch(windows->game, snake->head.y, snake->head.x, ACS_BLOCK);
 	wattroff(windows->game, COLOR_PAIR(1));
+	if (snake->tail.y != -1 && snake->tail.x != -1) {
+		w_snake_clear_tail(windows, snake);
+	}
 	wrefresh(windows->game);
 }
 
@@ -133,11 +144,9 @@ void w_snake_display_food(windows *const windows, const snake *const snake)
 	wattroff(windows->game, COLOR_PAIR(2));
 }
 
-void w_snake_clear_tail(windows *const windows, const snake *const snake)
+void w_snake_clear_tail(windows *const windows, snake *const snake)
 {
-	s_coordinates *tail = (struct s_coordinates *)snake->body->tail->data;
-	if (!tail) {
-		return;
-	}
-	mvwaddch(windows->game, tail->y, tail->x, ' ');
+	mvwaddch(windows->game, snake->tail.y, snake->tail.x, ' ');
+	snake->tail.x = -1;
+	snake->tail.y = -1;
 }

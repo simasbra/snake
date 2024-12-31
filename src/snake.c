@@ -21,7 +21,6 @@
  */
 
 #include "snake.h"
-#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -78,18 +77,16 @@ void s_move(snake *const snake, monitor *const monitor)
 	if (!snake || !monitor) {
 		return;
 	}
+
 	s_generate_food(snake);
+	s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
+
 	struct timespec sleep_time;
 	sleep_time.tv_sec = 0;
 	sleep_time.tv_nsec = 1e8;
-	pthread_mutex_lock(&(monitor->mutex));
-	monitor->signal_windows = SIGNAL_WINDOWS_REFRESH_FOOD;
-	pthread_cond_signal(&(monitor->conditional));
-	pthread_mutex_unlock(&(monitor->mutex));
+
 	while (1) {
 		pthread_mutex_lock(&(monitor->mutex));
-		monitor->signal_windows = SIGNAL_WINDOWS_REFRESH_SNAKE;
-		pthread_cond_signal(&(monitor->conditional));
 		if (s_handle_signal(snake, monitor)) {
 			pthread_mutex_unlock(&(monitor->mutex));
 			break;
@@ -105,9 +102,23 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 	if (!snake || !monitor) {
 		return 0;
 	}
-	if (monitor->signal_snake == SIGNAL_SNAKE_GAME_EXIT) {
+	switch (monitor->signal_snake) {
+	case SIGNAL_SNAKE_GAME_EXIT:
 		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
 		return 1;
+	case SIGNAL_SNAKE_MOVE: {
+		s_handle_move(snake, monitor);
+		return 0;
+	}
+	default:
+		return 0;
+	}
+}
+
+void s_handle_move(snake *const snake, monitor *const monitor)
+{
+	if (!snake || !monitor) {
+		return;
 	}
 
 	enum m_snake_move move = SNAKE_MOVE_EMPTY;
@@ -117,36 +128,27 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 		move = monitor->move_previous;
 	}
 
-	if (s_handle_move(snake, move)) {
-		monitor->move_next[0] = monitor->move_next[1];
-		monitor->move_next[1] = SNAKE_MOVE_EMPTY;
-		monitor->move_previous = move;
-		snake->score++;
-	}
-	return 0;
-}
-
-short s_handle_move(snake *const snake, enum m_snake_move move)
-{
-	if (!snake) {
-		return 0;
-	}
 	switch (move) {
 	case SNAKE_MOVE_UP:
 		s_move_up(snake);
-		return 1;
+		break;
 	case SNAKE_MOVE_DOWN:
 		s_move_down(snake);
-		return 1;
+		break;
 	case SNAKE_MOVE_RIGHT:
 		s_move_right(snake);
-		return 1;
+		break;
 	case SNAKE_MOVE_LEFT:
 		s_move_left(snake);
-		return 1;
+		break;
 	default:
-		return 0;
+		return;
 	}
+
+	monitor->move_next[0] = monitor->move_next[1];
+	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
+	monitor->move_previous = move;
+	snake->score++;
 }
 
 void s_move_up(snake *const snake)
@@ -239,15 +241,22 @@ void s_handle_food(snake *const snake, monitor *const monitor)
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
 		s_generate_food(snake);
-		pthread_mutex_lock(&(monitor->mutex));
-		monitor->signal_windows = SIGNAL_WINDOWS_REFRESH_FOOD;
-		pthread_cond_signal(&(monitor->conditional));
-		pthread_mutex_unlock(&(monitor->mutex));
+		s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
 	} else {
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);
 		if (!tail) {
 			return;
 		}
+		snake->tail = *tail;
+		s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_REFRESH);
 		free(tail);
 	}
+}
+
+void s_signal_windows(monitor *const monitor, enum m_signal_windows signal)
+{
+	pthread_mutex_lock(&(monitor->mutex));
+	monitor->signal_windows = signal;
+	pthread_cond_signal(&(monitor->conditional));
+	pthread_mutex_unlock(&(monitor->mutex));
 }

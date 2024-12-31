@@ -46,7 +46,7 @@ m_monitor_free:
 
 void m_initialize(monitor *const monitor)
 {
-	monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
+	monitor->signal_snake = SIGNAL_SNAKE_MOVE;
 	monitor->signal_windows = SIGNAL_WINDOWS_EMPTY;
 	monitor->move_next[0] = SNAKE_MOVE_EMPTY;
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
