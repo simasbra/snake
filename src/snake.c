@@ -21,8 +21,6 @@
  */
 
 #include "snake.h"
-#include "double_linked_list.h"
-#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -93,6 +91,11 @@ void s_move(snake *const snake, monitor *const monitor)
 		}
 		pthread_mutex_unlock(&(monitor->mutex));
 
+		if (!monitor->snake_alive) {
+			s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_DIED);
+			return;
+		}
+
 		if (s_handle_food(snake)) {
 			s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
 		} else {
@@ -135,16 +138,16 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 
 	switch (move) {
 	case SNAKE_MOVE_UP:
-		s_move_up(snake);
+		s_move_up(snake, monitor);
 		break;
 	case SNAKE_MOVE_DOWN:
-		s_move_down(snake);
+		s_move_down(snake, monitor);
 		break;
 	case SNAKE_MOVE_RIGHT:
-		s_move_right(snake);
+		s_move_right(snake, monitor);
 		break;
 	case SNAKE_MOVE_LEFT:
-		s_move_left(snake);
+		s_move_left(snake, monitor);
 		break;
 	default:
 		return;
@@ -156,46 +159,46 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 	snake->score++;
 }
 
-void s_move_up(snake *const snake)
+void s_move_up(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x, snake->head.y - 1)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.y--;
 }
 
-void s_move_down(snake *const snake)
+void s_move_down(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x, snake->head.y + 1)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.y++;
 }
 
-void s_move_right(snake *const snake)
+void s_move_right(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x + 1, snake->head.y)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.x++;
 }
 
-void s_move_left(snake *const snake)
+void s_move_left(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x - 1, snake->head.y)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.x--;
 }
