@@ -55,6 +55,8 @@ void *t_initialize_windows(void *args)
 		return NULL;
 	}
 	windows_args *windows_args = (struct windows_args *)args;
+	w_snake_display_snake(windows_args->windows, windows_args->snake);
+	w_snake_display_food(windows_args->windows, windows_args->snake);
 	w_display(windows_args->windows, windows_args->monitor, windows_args->snake);
 	free(windows_args);
 	return NULL;

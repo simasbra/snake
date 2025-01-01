@@ -28,6 +28,9 @@
 #include <ncurses.h>
 #include <time.h>
 
+/*
+ * Coordinates
+ */
 typedef struct s_coordinates {
 	int x;
 	int y;
@@ -37,11 +40,11 @@ typedef struct s_coordinates {
  * Struct for storing snake information
  */
 typedef struct snake {
+	unsigned int score;
 	struct s_coordinates head;
 	struct s_coordinates tail;
 	struct s_coordinates max;
 	struct s_coordinates food;
-	unsigned int score;
 	struct double_linked_list *body;
 } snake;
 

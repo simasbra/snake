@@ -27,6 +27,9 @@
 #include "monitor.h"
 #include <ncurses.h>
 
+/*
+ * Stores all windows
+ */
 typedef struct windows {
 	WINDOW *game;
 	WINDOW *status;

@@ -51,6 +51,7 @@ void m_initialize(monitor *const monitor)
 	monitor->move_next[0] = SNAKE_MOVE_EMPTY;
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = SNAKE_MOVE_RIGHT;
+	monitor->snake_alive = 1;
 }
 
 void m_free(monitor **monitor)
