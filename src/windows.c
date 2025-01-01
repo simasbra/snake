@@ -41,8 +41,7 @@ void w_initialize(struct windows *const windows)
 	windows->game = newwin(y_max - 1, x_max, 0, 0);
 	windows->status = newwin(1, x_max, y_max - 1, 0);
 	refresh();
-	wprintw(windows->status, "Press q to exit or any other key to play\n");
-	wrefresh(windows->status);
+	w_status_display(windows, "Press q to exit or arrow keys to play");
 	box(windows->game, 0, 0);
 	wrefresh(windows->game);
 }
@@ -66,8 +65,8 @@ void w_ncurses_initialize(void)
 	halfdelay(1);
 	if (has_colors()) {
 		start_color();
-		init_pair(1, COLOR_GREEN, COLOR_BLACK);
-		init_pair(2, COLOR_RED, COLOR_BLACK);
+		init_pair(COLOR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
+		init_pair(COLOR_PAIR_RED, COLOR_RED, COLOR_BLACK);
 	} else {
 		fprintf(stderr, "ERROR: Terminal does not support colors\n");
 		exit(EXIT_FAILURE);
@@ -106,16 +105,26 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 	}
 	switch (monitor->signal_windows) {
 	case SIGNAL_WINDOWS_GAME_EXIT:
+		monitor->signal_windows = SIGNAL_WINDOWS_EMPTY;
 		return 1;
 	case SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH:
 		w_snake_display_food(windows, snake);
+		char score[16];
+		sprintf(score, "Score: %d", snake->score);
+		w_status_display(windows, score);
 	case SIGNAL_WINDOWS_SNAKE_REFRESH:
-		w_snake_display_snake(windows, snake);
+		w_snake_display_head(windows, snake, COLOR_PAIR_GREEN);
 		if (snake->tail.y != -1 && snake->tail.x != -1) {
 			w_snake_clear_tail(windows, snake);
 			snake->tail.x = -1;
 			snake->tail.y = -1;
 		}
+		wrefresh(windows->game);
+		break;
+	case SIGNAL_WINDOWS_SNAKE_DIED:
+		w_status_display(windows, "Snake has died");
+		w_snake_clear_tail(windows, snake);
+		w_snake_display_head(windows, snake, COLOR_PAIR_RED);
 		wrefresh(windows->game);
 		break;
 	default:
@@ -125,14 +134,14 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 	return 0;
 }
 
-void w_snake_display_snake(windows *const windows, const snake *const snake)
+void w_snake_display_head(windows *const windows, const snake *const snake, const short color_pair)
 {
 	if (!windows || !snake) {
 		return;
 	}
-	wattron(windows->game, COLOR_PAIR(1));
+	wattron(windows->game, COLOR_PAIR(color_pair));
 	mvwaddch(windows->game, snake->head.y, snake->head.x, ACS_BLOCK);
-	wattroff(windows->game, COLOR_PAIR(1));
+	wattroff(windows->game, COLOR_PAIR(color_pair));
 }
 
 void w_snake_display_food(windows *const windows, const snake *const snake)
@@ -143,9 +152,9 @@ void w_snake_display_food(windows *const windows, const snake *const snake)
 	if (snake->food.x == -1 && snake->food.y == -1) {
 		return;
 	}
-	wattron(windows->game, COLOR_PAIR(2));
+	wattron(windows->game, COLOR_PAIR(COLOR_PAIR_RED));
 	mvwaddch(windows->game, snake->food.y, snake->food.x, '*');
-	wattroff(windows->game, COLOR_PAIR(2));
+	wattroff(windows->game, COLOR_PAIR(COLOR_PAIR_RED));
 }
 
 void w_snake_clear_tail(windows *const windows, const snake *const snake)
@@ -154,4 +163,14 @@ void w_snake_clear_tail(windows *const windows, const snake *const snake)
 		return;
 	}
 	mvwaddch(windows->game, snake->tail.y, snake->tail.x, ' ');
+}
+
+void w_status_display(windows *const windows, const char *message)
+{
+	if (!windows || !message) {
+		return;
+	}
+	wclear(windows->status);
+	mvwprintw(windows->status, 0, 0, message);
+	wrefresh(windows->status);
 }

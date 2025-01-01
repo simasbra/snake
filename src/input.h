@@ -34,6 +34,11 @@ void i_handle_input(monitor *const monitor);
 short i_handle_received_key(monitor *const monitor, const int value);
 
 /*
+ * Handles game exit
+ */
+void i_handle_exit(monitor *const monitor);
+
+/*
  * Handles key up input by telling snake to move up
  */
 void i_handle_key_up(monitor *const monitor);

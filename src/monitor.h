@@ -43,6 +43,7 @@ typedef enum m_signal_windows {
 	SIGNAL_WINDOWS_GAME_EXIT,
 	SIGNAL_WINDOWS_SNAKE_REFRESH,
 	SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH,
+	SIGNAL_WINDOWS_SNAKE_DIED,
 	SIGNAL_WINDOWS_COUNT
 } m_signal_windows;
 
@@ -61,12 +62,13 @@ typedef enum m_snake_move {
  * Monitor shared between threads
  */
 typedef struct monitor {
-	pthread_mutex_t mutex;
-	pthread_cond_t conditional;
 	enum m_signal_snake signal_snake;
 	enum m_signal_windows signal_windows;
 	enum m_snake_move move_previous;
 	enum m_snake_move move_next[2];
+	short snake_alive;
+	pthread_mutex_t mutex;
+	pthread_cond_t conditional;
 } monitor;
 
 /*

@@ -21,7 +21,6 @@
  */
 
 #include "snake.h"
-#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -80,7 +79,6 @@ void s_move(snake *const snake, monitor *const monitor)
 		return;
 	}
 
-	s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
 	struct timespec sleep_time;
 	sleep_time.tv_sec = 0;
 	sleep_time.tv_nsec = 1e8;
@@ -89,9 +87,15 @@ void s_move(snake *const snake, monitor *const monitor)
 		pthread_mutex_lock(&(monitor->mutex));
 		if (s_handle_signal(snake, monitor)) {
 			pthread_mutex_unlock(&(monitor->mutex));
-			break;
+			return;
 		}
 		pthread_mutex_unlock(&(monitor->mutex));
+
+		if (!monitor->snake_alive) {
+			s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_DIED);
+			return;
+		}
+
 		if (s_handle_food(snake)) {
 			s_signal_windows(monitor, SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH);
 		} else {
@@ -110,10 +114,9 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 	case SIGNAL_SNAKE_GAME_EXIT:
 		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
 		return 1;
-	case SIGNAL_SNAKE_MOVE: {
+	case SIGNAL_SNAKE_MOVE:
 		s_handle_move(snake, monitor);
 		return 0;
-	}
 	default:
 		return 0;
 	}
@@ -134,16 +137,16 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 
 	switch (move) {
 	case SNAKE_MOVE_UP:
-		s_move_up(snake);
+		s_move_up(snake, monitor);
 		break;
 	case SNAKE_MOVE_DOWN:
-		s_move_down(snake);
+		s_move_down(snake, monitor);
 		break;
 	case SNAKE_MOVE_RIGHT:
-		s_move_right(snake);
+		s_move_right(snake, monitor);
 		break;
 	case SNAKE_MOVE_LEFT:
-		s_move_left(snake);
+		s_move_left(snake, monitor);
 		break;
 	default:
 		return;
@@ -152,49 +155,48 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 	monitor->move_next[0] = monitor->move_next[1];
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = move;
-	snake->score++;
 }
 
-void s_move_up(snake *const snake)
+void s_move_up(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x, snake->head.y - 1)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.y--;
 }
 
-void s_move_down(snake *const snake)
+void s_move_down(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x, snake->head.y + 1)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.y++;
 }
 
-void s_move_right(snake *const snake)
+void s_move_right(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x + 1, snake->head.y)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.x++;
 }
 
-void s_move_left(snake *const snake)
+void s_move_left(snake *const snake, monitor *const monitor)
 {
 	if (!snake) {
 		return;
 	}
 	if (!s_check_new_location(snake, snake->head.x - 1, snake->head.y)) {
-		return;
+		monitor->snake_alive = 0;
 	}
 	snake->head.x--;
 }
@@ -204,14 +206,14 @@ short s_check_new_location(const snake *const snake, int x, int y)
 	if (!snake) {
 		return 0;
 	}
-	if (x < 1) {
+	if (x < 1 || y < 1 || x > snake->max.x - 2 || y > snake->max.y - 2) {
 		return 0;
-	} else if (y < 1) {
-		return 0;
-	} else if (x > snake->max.x - 2) {
-		return 0;
-	} else if (y > snake->max.y - 2) {
-		return 0;
+	}
+	for (unsigned int i = 0; i < dll_get_length(snake->body); i++) {
+		s_coordinates *body_part = (struct s_coordinates *)dll_get_index(snake->body, i);
+		if (x == body_part->x && y == body_part->y) {
+			return 0;
+		}
 	}
 	return 1;
 }
@@ -244,6 +246,7 @@ short s_handle_food(snake *const snake)
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
 		s_generate_food(snake);
+		snake->score++;
 		return 1;
 	} else {
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);

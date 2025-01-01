@@ -114,7 +114,8 @@ void *dll_pop_index(double_linked_list *const linked_list, unsigned int index);
 void *dll_pop(double_linked_list *const linked_list);
 
 /*
- * Gets pointer to not modifiable element from the list at given index
+ * Gets pointer to not modifiable element from the list at given index.
+ * If value is freed, it will be freed in the list
  * \RETURNS: element at given index
  */
 const void *dll_get_index(const double_linked_list *const linked_list, unsigned int index);

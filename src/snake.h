@@ -28,6 +28,9 @@
 #include <ncurses.h>
 #include <time.h>
 
+/*
+ * Coordinates
+ */
 typedef struct s_coordinates {
 	int x;
 	int y;
@@ -37,11 +40,11 @@ typedef struct s_coordinates {
  * Struct for storing snake information
  */
 typedef struct snake {
+	unsigned int score;
 	struct s_coordinates head;
 	struct s_coordinates tail;
 	struct s_coordinates max;
 	struct s_coordinates food;
-	unsigned int score;
 	struct double_linked_list *body;
 } snake;
 
@@ -79,24 +82,28 @@ short s_handle_signal(snake *const snake, monitor *const monitor);
 void s_handle_move(snake *const snake, monitor *const monitor);
 
 /*
- * Moves snake head up
+ * Moves snake head up.
+ * If snake hits its own body or wall, it will marked as dead
  */
-void s_move_up(snake *const snake);
+void s_move_up(snake *const snake, monitor *const monitor);
 
 /*
- * Moves snake head down
+ * Moves snake head down.
+ * If snake hits its own body or wall, it will marked as dead
  */
-void s_move_down(snake *const snake);
+void s_move_down(snake *const snake, monitor *const monitor);
 
 /*
- * Moves snake head to the right
+ * Moves snake head to the right.
+ * If snake hits its own body or wall, it will marked as dead
  */
-void s_move_right(snake *const snake);
+void s_move_right(snake *const snake, monitor *const monitor);
 
 /*
- * Moves snake head to the left
+ * Moves snake head to the left.
+ * If snake hits its own body or wall, it will marked as dead
  */
-void s_move_left(snake *const snake);
+void s_move_left(snake *const snake, monitor *const monitor);
 
 /*
  * Checks if given coordinates are not out of bounds

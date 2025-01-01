@@ -41,24 +41,18 @@ short i_handle_received_key(monitor *const monitor, const int value)
 {
 	switch (value) {
 	case (int)'q':
-		monitor->signal_snake = SIGNAL_SNAKE_GAME_EXIT;
-		monitor->signal_windows = SIGNAL_WINDOWS_GAME_EXIT;
-		pthread_cond_signal(&(monitor->conditional));
+		i_handle_exit(monitor);
 		return 1;
 	case KEY_UP:
-	case (int)'w':
 		i_handle_key_up(monitor);
 		return 1;
 	case KEY_DOWN:
-	case (int)'r':
 		i_handle_key_down(monitor);
 		return 1;
 	case KEY_RIGHT:
-	case (int)'s':
 		i_handle_key_right(monitor);
 		return 1;
 	case KEY_LEFT:
-	case (int)'a':
 		i_handle_key_left(monitor);
 		return 1;
 	case -1:
@@ -66,6 +60,16 @@ short i_handle_received_key(monitor *const monitor, const int value)
 	default:
 		return 0;
 	}
+}
+
+void i_handle_exit(monitor *const monitor)
+{
+	if (!monitor) {
+		return;
+	}
+	monitor->signal_snake = SIGNAL_SNAKE_GAME_EXIT;
+	monitor->signal_windows = SIGNAL_WINDOWS_GAME_EXIT;
+	pthread_cond_signal(&(monitor->conditional));
 }
 
 void i_handle_key_up(monitor *const monitor)
