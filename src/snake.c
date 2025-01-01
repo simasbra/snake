@@ -114,10 +114,9 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 	case SIGNAL_SNAKE_GAME_EXIT:
 		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
 		return 1;
-	case SIGNAL_SNAKE_MOVE: {
+	case SIGNAL_SNAKE_MOVE:
 		s_handle_move(snake, monitor);
 		return 0;
-	}
 	default:
 		return 0;
 	}
@@ -156,7 +155,6 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 	monitor->move_next[0] = monitor->move_next[1];
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = move;
-	snake->score++;
 }
 
 void s_move_up(snake *const snake, monitor *const monitor)
@@ -248,6 +246,7 @@ short s_handle_food(snake *const snake)
 	dll_push_beginning(snake->body, &snake->head, sizeof(struct s_coordinates));
 	if (s_check_food(snake)) {
 		s_generate_food(snake);
+		snake->score++;
 		return 1;
 	} else {
 		s_coordinates *tail = (s_coordinates *)dll_pop_end(snake->body);

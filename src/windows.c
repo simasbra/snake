@@ -21,7 +21,6 @@
  */
 
 #include "windows.h"
-#include "monitor.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,8 +41,7 @@ void w_initialize(struct windows *const windows)
 	windows->game = newwin(y_max - 1, x_max, 0, 0);
 	windows->status = newwin(1, x_max, y_max - 1, 0);
 	refresh();
-	wprintw(windows->status, "Press q to exit or any other key to play\n");
-	wrefresh(windows->status);
+	w_status_display(windows, "Press q to exit or arrow keys to play");
 	box(windows->game, 0, 0);
 	wrefresh(windows->game);
 }
@@ -111,6 +109,9 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 		return 1;
 	case SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH:
 		w_snake_display_food(windows, snake);
+		char score[16];
+		sprintf(score, "Score: %d", snake->score);
+		w_status_display(windows, score);
 	case SIGNAL_WINDOWS_SNAKE_REFRESH:
 		w_snake_display_head(windows, snake, COLOR_PAIR_GREEN);
 		if (snake->tail.y != -1 && snake->tail.x != -1) {
@@ -122,8 +123,9 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 		break;
 	case SIGNAL_WINDOWS_SNAKE_DIED:
 		w_status_display(windows, "Snake has died");
+		w_snake_clear_tail(windows, snake);
 		w_snake_display_head(windows, snake, COLOR_PAIR_RED);
-		monitor->signal_windows = SIGNAL_WINDOWS_EMPTY;
+		wrefresh(windows->game);
 		break;
 	default:
 		break;
