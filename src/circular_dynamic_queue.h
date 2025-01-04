@@ -69,4 +69,9 @@ void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data);
  */
 void cdq_pop(struct circular_dynamic_queue *const queue);
 
+/*
+ * RETURNS: pointer to the firt element
+ */
+const void *cdq_head(const struct circular_dynamic_queue *const queue);
+
 #endif
