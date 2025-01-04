@@ -18,13 +18,11 @@ OBJS = $(O)/double_linked_list.o \
 	$(O)/input.o \
 	$(O)/monitor.o \
 	$(O)/threads.o \
-	$(O)/windows.o
+	$(O)/windows.o \
+	$(O)/circular_dynamic_queue.o
 
 # Rules
-all: snake cdq
-
-cdq: $(O)/circular_dynamic_queue.o $(O)/cdq.o
-	$(CC) $(CFLAGS) $(O)/circular_dynamic_queue.o $(O)/cdq.o -o cdq
+all: snake
 
 snake: $(OBJS) $(O)/main.o
 	$(CC) $(CFLAGS) $(OBJS) $(O)/main.o -o snake.out $(LIBS)

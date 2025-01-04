@@ -102,13 +102,13 @@ void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data)
 		queue = queue_realloc;
 	}
 
-	size_t index = 0;
-	if (queue->size_current > 0 && (queue->tail != 0 || queue->tail + 1 < queue->size_max)) {
-		index = queue->tail + 1;
+	size_t index = queue->tail + 1;
+	if (queue->size_current == 0 || index == queue->size_max) {
+		index = 0;
 	}
 	memcpy((char *)queue->data + index * queue->offset, new_data, queue->offset);
-	queue->size_current++;
 	queue->tail = index;
+	queue->size_current++;
 }
 
 void cdq_pop(struct circular_dynamic_queue *const queue)
