@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-#include "circular_dynamic_array.h"
+#include "circular_dynamic_queue.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct circular_dynamic_queue *const cdq_malloc(const size_t offset)
+struct circular_dynamic_queue *cdq_malloc(const size_t offset)
 {
 	if (offset < 1) {
 		return NULL;
@@ -36,7 +36,7 @@ struct circular_dynamic_queue *const cdq_malloc(const size_t offset)
 		perror("Circular dynamic queue memory allocation failed:\n");
 		return NULL;
 	}
-	void *data = malloc(sizeof(CDQ_INITIAL_SIZE * offset));
+	void *data = malloc(CDQ_INITIAL_SIZE * offset);
 	if (!data) {
 		perror("Circular dynamic queue data memory allocation failed:\n");
 		free(queue);
@@ -51,7 +51,7 @@ struct circular_dynamic_queue *const cdq_malloc(const size_t offset)
 	return queue;
 }
 
-struct circular_dynamic_queue *const cdq_realloc(circular_dynamic_queue *const queue)
+struct circular_dynamic_queue *cdq_realloc(circular_dynamic_queue *const queue)
 {
 	if (!queue || !queue->data) {
 		return queue;
@@ -63,15 +63,15 @@ struct circular_dynamic_queue *const cdq_realloc(circular_dynamic_queue *const q
 		return queue;
 	}
 
-	for (int i = 0; i < queue->size_current; i++) {
+	for (size_t i = 0; i < queue->size_current; i++) {
 		size_t index = (i + queue->head) % queue->size_max;
-		memcpy(new_data + (i * queue->offset), queue->data + (index * queue->offset),
-		       queue->offset);
+		memcpy((char *)new_data + (i * queue->offset),
+		       (char *)queue->data + (index * queue->offset), queue->offset);
 	}
 
 	free(queue->data);
 	queue->data = new_data;
-	queue->size_max = new_size;
+	queue->size_max *= 2;
 	queue->head = 0;
 	queue->tail = queue->size_current - 1;
 	return queue;
@@ -86,4 +86,45 @@ void cdq_free(struct circular_dynamic_queue **queue)
 	(*queue)->data = NULL;
 	free(*queue);
 	*queue = NULL;
+}
+
+void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data)
+{
+	if (!queue || !new_data) {
+		return;
+	}
+	if (queue->size_max == queue->size_current) {
+		circular_dynamic_queue *queue_realloc = cdq_realloc(queue);
+		if (!queue_realloc->data) {
+			return;
+		}
+		queue = queue_realloc;
+	}
+
+	size_t index;
+	if (queue->tail + 1 > queue->size_max) {
+		index = queue->tail + 1;
+	} else {
+		index = 0;
+	}
+	memcpy((char *)queue->data + index * queue->offset, new_data, queue->offset);
+	queue->size_current++;
+	queue->tail = index;
+}
+
+void cdq_pop(struct circular_dynamic_queue *const queue)
+{
+	if (!queue) {
+		return;
+	}
+	if (queue->size_current == 0) {
+		return;
+	}
+	memset((char *)queue->data + queue->head * queue->offset, 0, queue->offset);
+	if (queue->size_current + 1 == queue->size_max) {
+		queue->head = 0;
+	} else {
+		queue->head++;
+	}
+	queue->size_current--;
 }

@@ -45,18 +45,28 @@ typedef struct circular_dynamic_queue {
  * Allocates and initializes new circular dynamic queue
  * \RETURNS: pointer to the newly created queue
  */
-struct circular_dynamic_queue *const cdq_malloc(const size_t offset);
+struct circular_dynamic_queue *cdq_malloc(const size_t offset);
 
 /*
- * Reallocates more memory for data and copies its data to the new memory.
+ * Reallocates double more memory for data and copies its data to the new memory.
  * Also rearrages elements if needed
  * \RETURNS: pointer to the queue
  */
-struct circular_dynamic_queue *const cdq_realloc(struct circular_dynamic_queue *const queue);
+struct circular_dynamic_queue *cdq_realloc(struct circular_dynamic_queue *const queue);
 
 /*
  * Frees the given circular dynamic queue
  */
 void cdq_free(struct circular_dynamic_queue **queue);
+
+/*
+ * Pushes new data to the end of the list
+ */
+void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data);
+
+/*
+ * Pops the first element from the queue
+ */
+void cdq_pop(struct circular_dynamic_queue *const queue);
 
 #endif
