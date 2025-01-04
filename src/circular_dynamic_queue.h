@@ -70,8 +70,18 @@ void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data);
 void cdq_pop(struct circular_dynamic_queue *const queue);
 
 /*
- * RETURNS: pointer to the firt element
+ * RETURNS: pointer to the first element
  */
 const void *cdq_head(const struct circular_dynamic_queue *const queue);
+
+/*
+ * RETURNS: pointer to the last element
+ */
+const void *cdq_tail(const struct circular_dynamic_queue *const queue);
+
+/*
+ * RETURNS: pointer to the element at given index
+ */
+const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned int index);
 
 #endif

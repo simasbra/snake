@@ -102,11 +102,9 @@ void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data)
 		queue = queue_realloc;
 	}
 
-	size_t index;
+	size_t index = 0;
 	if (queue->size_current > 0 && (queue->tail != 0 || queue->tail + 1 < queue->size_max)) {
 		index = queue->tail + 1;
-	} else {
-		index = 0;
 	}
 	memcpy((char *)queue->data + index * queue->offset, new_data, queue->offset);
 	queue->size_current++;
@@ -122,10 +120,9 @@ void cdq_pop(struct circular_dynamic_queue *const queue)
 		return;
 	}
 	memset((char *)queue->data + queue->head * queue->offset, 0, queue->offset);
-	if (queue->size_current + 1 == queue->size_max) {
+	queue->head++;
+	if (queue->head == queue->size_max) {
 		queue->head = 0;
-	} else {
-		queue->head++;
 	}
 	queue->size_current--;
 }
@@ -138,6 +135,34 @@ const void *cdq_head(const struct circular_dynamic_queue *const queue)
 	if (queue->size_current == 0) {
 		return NULL;
 	}
-
 	return (char *)queue->data + (queue->head * queue->offset);
+}
+
+const void *cdq_tail(const struct circular_dynamic_queue *const queue)
+{
+	if (!queue) {
+		return NULL;
+	}
+	if (queue->size_current == 0) {
+		return NULL;
+	}
+	return (char *)queue->data + (queue->tail * queue->offset);
+}
+
+const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned int index)
+{
+	if (!queue) {
+		return NULL;
+	}
+	if (queue->size_current == 0) {
+		return NULL;
+	}
+	if (index >= queue->size_current) {
+		return NULL;
+	}
+	size_t index_correct = (queue->head + index);
+	if (index_correct >= queue->size_max) {
+		index_correct -= queue->size_max;
+	}
+	return (char *)queue->data + (index_correct * queue->offset);
 }
