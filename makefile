@@ -12,6 +12,9 @@ O = objs
 # Subdirectory of source files
 S = src
 
+# Target file
+TARGET = snake
+
 # Object files
 OBJS = $(O)/double_linked_list.o \
 	$(O)/snake.o \
@@ -25,7 +28,7 @@ OBJS = $(O)/double_linked_list.o \
 all: snake
 
 snake: $(OBJS) $(O)/main.o
-	$(CC) $(CFLAGS) $(OBJS) $(O)/main.o -o snake.out $(LIBS)
+	$(CC) $(CFLAGS) $(OBJS) $(O)/main.o -o $(TARGET) $(LIBS)
 
 $(O)/%.o: $(S)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
