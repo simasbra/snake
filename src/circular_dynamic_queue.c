@@ -42,6 +42,7 @@ struct circular_dynamic_queue *cdq_malloc(const size_t offset)
 		free(queue);
 		return NULL;
 	}
+	queue->data = data;
 	queue->head = 0;
 	queue->tail = 0;
 	queue->size_current = 0;
@@ -102,11 +103,12 @@ void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data)
 	}
 
 	size_t index;
-	if (queue->tail + 1 > queue->size_max) {
+	if (queue->tail != 0 && queue->tail + 1 < queue->size_max) {
 		index = queue->tail + 1;
 	} else {
 		index = 0;
 	}
+	printf("%zu", index);
 	memcpy((char *)queue->data + index * queue->offset, new_data, queue->offset);
 	queue->size_current++;
 	queue->tail = index;
