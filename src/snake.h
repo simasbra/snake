@@ -23,8 +23,8 @@
 #ifndef __SNAKE_H__
 #define __SNAKE_H__
 
+#include "circular_dynamic_queue.h"
 #include "monitor.h"
-#include "double_linked_list.h"
 #include <ncurses.h>
 #include <time.h>
 
@@ -45,7 +45,7 @@ typedef struct snake {
 	struct s_coordinates tail;
 	struct s_coordinates max;
 	struct s_coordinates food;
-	struct double_linked_list *body;
+	struct circular_dynamic_queue *body;
 } snake;
 
 /*
@@ -132,5 +132,10 @@ short s_handle_food(snake *const snake);
  * Signals windows to update the screen depending on signal type
  */
 void s_signal_windows(monitor *const monitor, enum m_signal_windows signal);
+
+/*
+ * Removes snake tail
+ */
+void s_remove_snake_tail(snake *const snake);
 
 #endif

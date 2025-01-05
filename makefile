@@ -16,8 +16,7 @@ S = src
 TARGET = snake
 
 # Object files
-OBJS = $(O)/double_linked_list.o \
-	$(O)/snake.o \
+OBJS = $(O)/snake.o \
 	$(O)/input.o \
 	$(O)/monitor.o \
 	$(O)/threads.o \

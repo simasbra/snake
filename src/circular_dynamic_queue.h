@@ -84,4 +84,10 @@ const void *cdq_tail(const struct circular_dynamic_queue *const queue);
  */
 const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned int index);
 
+/*
+ * Checks whether circular dynamic queue is empty
+ * \RETURNS: 1 if empty, 0 if not
+ */
+short cdq_is_empty(const struct circular_dynamic_queue *const queue);
+
 #endif

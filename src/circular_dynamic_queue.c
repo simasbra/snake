@@ -166,3 +166,11 @@ const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned
 	}
 	return (char *)queue->data + (index_correct * queue->offset);
 }
+
+short cdq_is_empty(const struct circular_dynamic_queue *const queue)
+{
+	if (!queue) {
+		return 1;
+	}
+	return queue->size_current == 0;
+}
