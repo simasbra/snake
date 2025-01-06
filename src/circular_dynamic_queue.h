@@ -33,8 +33,8 @@
  * tail is the index of the "last" element in the queue.
  */
 typedef struct circular_dynamic_queue {
-	size_t head;
-	size_t tail;
+	unsigned long head;
+	unsigned long tail;
 	size_t size_current;
 	size_t size_max;
 	size_t offset;
@@ -82,7 +82,7 @@ const void *cdq_tail(const struct circular_dynamic_queue *const queue);
 /*
  * RETURNS: pointer to the element at given index
  */
-const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned int index);
+const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned long index);
 
 /*
  * Checks whether circular dynamic queue is empty

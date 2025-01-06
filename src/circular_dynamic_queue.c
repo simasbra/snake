@@ -64,8 +64,8 @@ struct circular_dynamic_queue *cdq_realloc(circular_dynamic_queue *const queue)
 		return queue;
 	}
 
-	for (size_t i = 0; i < queue->size_current; i++) {
-		size_t index = (i + queue->head) % queue->size_max;
+	for (unsigned long i = 0; i < queue->size_current; i++) {
+		unsigned long index = (i + queue->head) % queue->size_max;
 		memcpy((char *)new_data + (i * queue->offset),
 		       (char *)queue->data + (index * queue->offset), queue->offset);
 	}
@@ -95,14 +95,13 @@ void cdq_push(struct circular_dynamic_queue *queue, const void *const new_data)
 		return;
 	}
 	if (queue->size_current == queue->size_max) {
-		circular_dynamic_queue *queue_realloc = cdq_realloc(queue);
-		if (!queue_realloc->data) {
+		cdq_realloc(queue);
+		if (queue->size_current == queue->size_max) {
 			return;
 		}
-		queue = queue_realloc;
 	}
 
-	size_t index = queue->tail + 1;
+	unsigned long index = queue->tail + 1;
 	if (queue->size_current == 0 || index == queue->size_max) {
 		index = 0;
 	}
@@ -149,7 +148,7 @@ const void *cdq_tail(const struct circular_dynamic_queue *const queue)
 	return (char *)queue->data + (queue->tail * queue->offset);
 }
 
-const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned int index)
+const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned long index)
 {
 	if (!queue) {
 		return NULL;
@@ -160,7 +159,7 @@ const void *cdq_index(const struct circular_dynamic_queue *const queue, unsigned
 	if (index >= queue->size_current) {
 		return NULL;
 	}
-	size_t index_correct = (queue->head + index);
+	unsigned long index_correct = (queue->head + index);
 	if (index_correct >= queue->size_max) {
 		index_correct -= queue->size_max;
 	}
