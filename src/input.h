@@ -42,5 +42,5 @@ void i_handle_exit(monitor *const monitor);
  * Handles move key input by telling snake to move to given direction.
  * Also checks if the move is not in the opposite direction
  */
-void i_handle_move(monitor *const monitor, const enum m_snake_move next_move,
-		   const enum m_snake_move opposite_direction);
+void i_handle_snake_move(monitor *const monitor, const enum m_snake_move next_move,
+			 const enum m_snake_move opposite_direction);

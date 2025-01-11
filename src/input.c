@@ -21,7 +21,6 @@
  */
 
 #include "input.h"
-#include "monitor.h"
 #include <ncurses.h>
 
 void i_handle_input(monitor *const monitor)
@@ -45,16 +44,16 @@ short i_handle_received_key(monitor *const monitor, const int value)
 		i_handle_exit(monitor);
 		return 1;
 	case KEY_UP:
-		i_handle_move(monitor, SNAKE_MOVE_UP, SNAKE_MOVE_DOWN);
+		i_handle_snake_move(monitor, SNAKE_MOVE_UP, SNAKE_MOVE_DOWN);
 		return 1;
 	case KEY_DOWN:
-		i_handle_move(monitor, SNAKE_MOVE_DOWN, SNAKE_MOVE_UP);
+		i_handle_snake_move(monitor, SNAKE_MOVE_DOWN, SNAKE_MOVE_UP);
 		return 1;
 	case KEY_RIGHT:
-		i_handle_move(monitor, SNAKE_MOVE_RIGHT, SNAKE_MOVE_LEFT);
+		i_handle_snake_move(monitor, SNAKE_MOVE_RIGHT, SNAKE_MOVE_LEFT);
 		return 1;
 	case KEY_LEFT:
-		i_handle_move(monitor, SNAKE_MOVE_LEFT, SNAKE_MOVE_RIGHT);
+		i_handle_snake_move(monitor, SNAKE_MOVE_LEFT, SNAKE_MOVE_RIGHT);
 		return 1;
 	case -1:
 		return 0;
@@ -73,8 +72,8 @@ void i_handle_exit(monitor *const monitor)
 	pthread_cond_signal(&(monitor->conditional));
 }
 
-void i_handle_move(monitor *const monitor, const enum m_snake_move next_move,
-		   const enum m_snake_move opposite_direction)
+void i_handle_snake_move(monitor *const monitor, const enum m_snake_move next_move,
+			 const enum m_snake_move opposite_direction)
 {
 	if (!monitor || next_move == SNAKE_MOVE_EMPTY || opposite_direction == SNAKE_MOVE_EMPTY) {
 		return;

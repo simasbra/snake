@@ -21,7 +21,6 @@
  */
 
 #include "snake.h"
-#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
