@@ -112,6 +112,7 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 		char score[16];
 		sprintf(score, "Score: %d", snake->score);
 		w_status_display(windows, score);
+		__attribute__((fallthrough));
 	case SIGNAL_WINDOWS_SNAKE_REFRESH:
 		w_snake_display_head(windows, snake, COLOR_PAIR_GREEN);
 		w_snake_clear_tail(windows, snake);

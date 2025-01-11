@@ -4,7 +4,7 @@ CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99
 # CFLAGS += -fsanitize=address
 
 # Libraries
-LIBS = -lncurses
+LIBS = -lncurses -lpthread
 
 # Subdirectory for object files
 O = objs
@@ -14,6 +14,20 @@ S = src
 
 # Target file
 TARGET = snake
+
+ifeq ($(OS),Windows_NT)
+    CFLAGS += -D WIN32
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+	CC = gcc
+        CFLAGS += -D LINUX -std=gnu99
+    endif
+    ifeq ($(UNAME_S),Darwin)
+	CC = clang
+        CFLAGS += -D OSX
+    endif
+endif
 
 # Object files
 OBJS = $(O)/snake.o \
