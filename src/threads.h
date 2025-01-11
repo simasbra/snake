@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-#ifndef __MONITOR_T__
-#define __MONITOR_T__
+#ifndef __THREADS_H__
+#define __THREADS_H__
 
 #include "snake.h"
 #include "monitor.h"

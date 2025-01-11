@@ -4,15 +4,15 @@ Multi thread snake terminal game using ncurses library.
 
 ### Threads
 
-There three threads:
+There are three threads:
 * Snake thread - handles snake movement, eating and death;
 * Windows thread - handles game and status window displaying;
 * Input thread - handles user input and notifies other threads.
 
 ### Keymap
 
-`q` - exits the game;
-`arrow keys` - moves the snake to coresponding direction.
+* `q` - exits the game;
+* `arrow keys` - moves the snake to coresponding direction.
 
 ### Building and running the game
 
