@@ -114,11 +114,7 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 		w_status_display(windows, score);
 	case SIGNAL_WINDOWS_SNAKE_REFRESH:
 		w_snake_display_head(windows, snake, COLOR_PAIR_GREEN);
-		if (snake->tail.y != -1 && snake->tail.x != -1) {
-			w_snake_clear_tail(windows, snake);
-			snake->tail.x = -1;
-			snake->tail.y = -1;
-		}
+		w_snake_clear_tail(windows, snake);
 		wrefresh(windows->game);
 		break;
 	case SIGNAL_WINDOWS_SNAKE_DIED:
@@ -157,12 +153,16 @@ void w_snake_display_food(windows *const windows, const snake *const snake)
 	wattroff(windows->game, COLOR_PAIR(COLOR_PAIR_RED));
 }
 
-void w_snake_clear_tail(windows *const windows, const snake *const snake)
+void w_snake_clear_tail(windows *const windows, snake *const snake)
 {
 	if (!windows || !snake) {
 		return;
 	}
-	mvwaddch(windows->game, snake->tail.y, snake->tail.x, ' ');
+	if (snake->tail.y != -1 && snake->tail.x != -1) {
+		mvwaddch(windows->game, snake->tail.y, snake->tail.x, ' ');
+		snake->tail.x = -1;
+		snake->tail.y = -1;
+	}
 }
 
 void w_status_display(windows *const windows, const char *message)

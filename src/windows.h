@@ -87,7 +87,7 @@ void w_snake_display_food(windows *const windows, const snake *const snake);
 /*
  * Clears snakes tail to whitespace in the game window
  */
-void w_snake_clear_tail(windows *const windows, const snake *const snake);
+void w_snake_clear_tail(windows *const windows, snake *const snake);
 
 /*
  * Displayes in the status bar given message

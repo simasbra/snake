@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = clang
-CFLAGS = -Wall -Werror -Wextra -pedantic -std=c99
+CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99
 # CFLAGS += -fsanitize=address
 
 # Libraries

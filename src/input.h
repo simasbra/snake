@@ -39,26 +39,8 @@ short i_handle_received_key(monitor *const monitor, const int value);
 void i_handle_exit(monitor *const monitor);
 
 /*
- * Handles key up input by telling snake to move up
+ * Handles move key input by telling snake to move to given direction.
+ * Also checks if the move is not in the opposite direction
  */
-void i_handle_key_up(monitor *const monitor);
-
-/*
- * Handles key down input by telling snake to move down
- */
-void i_handle_key_down(monitor *const monitor);
-
-/*
- * Handles key right input by telling snake to move right
- */
-void i_handle_key_right(monitor *const monitor);
-
-/*
- * Handles key left input by telling snake to move left
- */
-void i_handle_key_left(monitor *const monitor);
-
-/*
- * Adds next move to the input array
- */
-void i_add_next_move(monitor *const monitor, const enum m_snake_move move);
+void i_handle_snake_move(monitor *const monitor, const enum m_snake_move next_move,
+			 const enum m_snake_move opposite_direction);

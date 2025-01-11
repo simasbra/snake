@@ -24,8 +24,6 @@
 #include "snake.h"
 #include "threads.h"
 #include "windows.h"
-#include <ncurses.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 int main(void)

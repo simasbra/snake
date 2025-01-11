@@ -117,6 +117,12 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 		return 1;
 	case SIGNAL_SNAKE_MOVE:
 		s_handle_move(snake, monitor);
+		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
+		return 0;
+	case SIGNAL_SNAKE_EMPTY:
+		if (monitor->snake_alive) {
+			s_handle_move(snake, monitor);
+		}
 		return 0;
 	default:
 		return 0;
@@ -136,73 +142,51 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 		move = monitor->move_previous;
 	}
 
+	s_coordinates offset = { 0, 0 };
 	switch (move) {
 	case SNAKE_MOVE_UP:
-		s_move_up(snake, monitor);
+		offset = (s_coordinates){ 0, -1 };
 		break;
 	case SNAKE_MOVE_DOWN:
-		s_move_down(snake, monitor);
+		offset = (s_coordinates){ 0, 1 };
 		break;
 	case SNAKE_MOVE_RIGHT:
-		s_move_right(snake, monitor);
+		offset = (s_coordinates){ 1, 0 };
 		break;
 	case SNAKE_MOVE_LEFT:
-		s_move_left(snake, monitor);
+		offset = (s_coordinates){ -1, 0 };
 		break;
 	default:
 		return;
 	}
 
+	if (!s_move_direction(snake, offset)) {
+		monitor->snake_alive = 0;
+		return;
+	}
 	monitor->move_next[0] = monitor->move_next[1];
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = move;
 }
 
-void s_move_up(snake *const snake, monitor *const monitor)
+short s_move_direction(snake *const snake, const s_coordinates offset)
 {
 	if (!snake) {
-		return;
+		return 0;
 	}
-	if (!s_check_new_location(snake, snake->head.x, snake->head.y - 1)) {
-		monitor->snake_alive = 0;
+	if (offset.x < -1 || offset.x > 1 || offset.y < -1 || offset.y > 1) {
+		return 0;
 	}
-	snake->head.y--;
+	short valid_move = 1;
+	if (!s_check_new_location(snake, snake->head.x + offset.x, snake->head.y + offset.y)) {
+		valid_move = 0;
+	}
+	snake->head.x += offset.x;
+	snake->head.y += offset.y;
+	return valid_move;
 }
 
-void s_move_down(snake *const snake, monitor *const monitor)
-{
-	if (!snake) {
-		return;
-	}
-	if (!s_check_new_location(snake, snake->head.x, snake->head.y + 1)) {
-		monitor->snake_alive = 0;
-	}
-	snake->head.y++;
-}
-
-void s_move_right(snake *const snake, monitor *const monitor)
-{
-	if (!snake) {
-		return;
-	}
-	if (!s_check_new_location(snake, snake->head.x + 1, snake->head.y)) {
-		monitor->snake_alive = 0;
-	}
-	snake->head.x++;
-}
-
-void s_move_left(snake *const snake, monitor *const monitor)
-{
-	if (!snake) {
-		return;
-	}
-	if (!s_check_new_location(snake, snake->head.x - 1, snake->head.y)) {
-		monitor->snake_alive = 0;
-	}
-	snake->head.x--;
-}
-
-short s_check_new_location(const snake *const snake, int x, int y)
+short s_check_new_location(const snake *const snake, const int x, const int y)
 {
 	if (!snake) {
 		return 0;
@@ -252,7 +236,7 @@ short s_handle_food(snake *const snake)
 	return 0;
 }
 
-void s_signal_windows(monitor *const monitor, enum m_signal_windows signal)
+void s_signal_windows(monitor *const monitor, const enum m_signal_windows signal)
 {
 	if (!monitor || signal == SIGNAL_WINDOWS_EMPTY) {
 		return;
