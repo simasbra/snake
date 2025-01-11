@@ -89,8 +89,9 @@ short s_move_direction(snake *const snake, const s_coordinates offset);
 /*
  * Checks if given coordinates are not out of bounds
  * and not inside snake body
+ * \RETURNS: 1 if move was valid (aka snake has not died), 0 if not
  */
-short s_check_new_location(const snake *const snake, int x, int y);
+short s_check_new_location(const snake *const snake, const int x, const int y);
 
 /*
  * Generates snake food
@@ -112,7 +113,7 @@ short s_handle_food(snake *const snake);
 /*
  * Signals windows to update the screen depending on signal type
  */
-void s_signal_windows(monitor *const monitor, enum m_signal_windows signal);
+void s_signal_windows(monitor *const monitor, const enum m_signal_windows signal);
 
 /*
  * Removes snake tail

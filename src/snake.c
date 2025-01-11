@@ -21,6 +21,7 @@
  */
 
 #include "snake.h"
+#include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -117,6 +118,12 @@ short s_handle_signal(snake *const snake, monitor *const monitor)
 		return 1;
 	case SIGNAL_SNAKE_MOVE:
 		s_handle_move(snake, monitor);
+		monitor->signal_snake = SIGNAL_SNAKE_EMPTY;
+		return 0;
+	case SIGNAL_SNAKE_EMPTY:
+		if (monitor->snake_alive) {
+			s_handle_move(snake, monitor);
+		}
 		return 0;
 	default:
 		return 0;
@@ -136,33 +143,25 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 		move = monitor->move_previous;
 	}
 
-	short valid_move = 0;
+	s_coordinates offset = { 0, 0 };
 	switch (move) {
-	case SNAKE_MOVE_UP: {
-		s_coordinates offset = { 0, -1 };
-		valid_move = s_move_direction(snake, offset);
+	case SNAKE_MOVE_UP:
+		offset = (s_coordinates){ 0, -1 };
 		break;
-	}
-	case SNAKE_MOVE_DOWN: {
-		s_coordinates offset = { 0, 1 };
-		valid_move = s_move_direction(snake, offset);
+	case SNAKE_MOVE_DOWN:
+		offset = (s_coordinates){ 0, 1 };
 		break;
-	}
-	case SNAKE_MOVE_RIGHT: {
-		s_coordinates offset = { 1, 0 };
-		valid_move = s_move_direction(snake, offset);
+	case SNAKE_MOVE_RIGHT:
+		offset = (s_coordinates){ 1, 0 };
 		break;
-	}
-	case SNAKE_MOVE_LEFT: {
-		s_coordinates offset = { -1, 0 };
-		valid_move = s_move_direction(snake, offset);
+	case SNAKE_MOVE_LEFT:
+		offset = (s_coordinates){ -1, 0 };
 		break;
-	}
 	default:
 		return;
 	}
 
-	if (!valid_move) {
+	if (!s_move_direction(snake, offset)) {
 		monitor->snake_alive = 0;
 		return;
 	}
@@ -188,7 +187,7 @@ short s_move_direction(snake *const snake, const s_coordinates offset)
 	return valid_move;
 }
 
-short s_check_new_location(const snake *const snake, int x, int y)
+short s_check_new_location(const snake *const snake, const int x, const int y)
 {
 	if (!snake) {
 		return 0;
@@ -238,7 +237,7 @@ short s_handle_food(snake *const snake)
 	return 0;
 }
 
-void s_signal_windows(monitor *const monitor, enum m_signal_windows signal)
+void s_signal_windows(monitor *const monitor, const enum m_signal_windows signal)
 {
 	if (!monitor || signal == SIGNAL_WINDOWS_EMPTY) {
 		return;
