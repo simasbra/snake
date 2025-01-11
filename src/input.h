@@ -44,8 +44,3 @@ void i_handle_exit(monitor *const monitor);
  */
 void i_handle_move(monitor *const monitor, const enum m_snake_move next_move,
 		   const enum m_snake_move opposite_direction);
-
-/*
- * Adds next move to the input array
- */
-void i_add_next_move(monitor *const monitor, const enum m_snake_move move);

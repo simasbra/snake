@@ -77,33 +77,14 @@ short s_handle_signal(snake *const snake, monitor *const monitor);
 
 /*
  * Handles specified snake move
- * \RETUNRS: 1 if move was valid, 0 if not
  */
 void s_handle_move(snake *const snake, monitor *const monitor);
 
 /*
- * Moves snake head up.
- * If snake hits its own body or wall, it will marked as dead
+ * Moves snake to given direction
+ * \RETURNS: 1 if move was valid (aka snake has not died), 0 if not
  */
-void s_move_up(snake *const snake, monitor *const monitor);
-
-/*
- * Moves snake head down.
- * If snake hits its own body or wall, it will marked as dead
- */
-void s_move_down(snake *const snake, monitor *const monitor);
-
-/*
- * Moves snake head to the right.
- * If snake hits its own body or wall, it will marked as dead
- */
-void s_move_right(snake *const snake, monitor *const monitor);
-
-/*
- * Moves snake head to the left.
- * If snake hits its own body or wall, it will marked as dead
- */
-void s_move_left(snake *const snake, monitor *const monitor);
+short s_move_direction(snake *const snake, const s_coordinates offset);
 
 /*
  * Checks if given coordinates are not out of bounds

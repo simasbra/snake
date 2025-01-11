@@ -83,20 +83,12 @@ void i_handle_move(monitor *const monitor, const enum m_snake_move next_move,
 		return;
 	}
 
-	i_add_next_move(monitor, next_move);
-}
-
-void i_add_next_move(monitor *const monitor, const enum m_snake_move move)
-{
-	if (!monitor || move == SNAKE_MOVE_EMPTY) {
-		return;
-	}
-
-	if (monitor->move_next[0] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+	if (monitor->move_next[0] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != next_move) {
 		monitor->signal_snake = SIGNAL_SNAKE_MOVE;
-		monitor->move_next[0] = move;
-	} else if (monitor->move_next[1] == SNAKE_MOVE_EMPTY && monitor->move_next[0] != move) {
+		monitor->move_next[0] = next_move;
+	} else if (monitor->move_next[1] == SNAKE_MOVE_EMPTY
+		   && monitor->move_next[0] != next_move) {
 		monitor->signal_snake = SIGNAL_SNAKE_MOVE;
-		monitor->move_next[1] = move;
+		monitor->move_next[1] = next_move;
 	}
 }
