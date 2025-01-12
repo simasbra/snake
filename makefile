@@ -1,7 +1,7 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99
-# CFLAGS += -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra -Wpedantic -Wconversion -std=c99
+CFLAGS += -fsanitize=address
 
 # Libraries
 LIBS = -lncurses -lpthread
