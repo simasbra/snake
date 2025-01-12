@@ -29,7 +29,7 @@ void i_handle_input(monitor *const monitor);
 
 /*
  * Handles user pressed key
- * \RETURNS: 1 if valid, 0 if not
+ * \RETURNS: 1 if exit received, 0 if not
  */
 short i_handle_received_key(monitor *const monitor, const int value);
 

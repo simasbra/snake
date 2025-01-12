@@ -110,7 +110,7 @@ short w_handle_signal(windows *const windows, monitor *const monitor, snake *con
 	case SIGNAL_WINDOWS_SNAKE_AND_FOOD_REFRESH:
 		w_snake_display_food(windows, snake);
 		char score[16];
-		sprintf(score, "Score: %d", snake->score);
+		snprintf(score, 15, "Score: %d", snake->score);
 		w_status_display(windows, score);
 		__attribute__((fallthrough));
 	case SIGNAL_WINDOWS_SNAKE_REFRESH:

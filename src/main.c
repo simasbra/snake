@@ -31,8 +31,8 @@ int main(void)
 	w_ncurses_initialize();
 
 	struct timespec time;
-	clock_gettime(CLOCK_MONOTONIC, &time);
-	srand(time.tv_nsec);
+	clock_gettime(CLOCK_REALTIME, &time);
+	srand((unsigned int)time.tv_nsec);
 
 	windows *windows = w_malloc();
 	if (!windows) {
