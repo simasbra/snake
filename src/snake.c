@@ -79,7 +79,7 @@ void s_move(snake *const snake, monitor *const monitor)
 
 	struct timespec sleep_time;
 	sleep_time.tv_sec = 0;
-	sleep_time.tv_nsec = 1e8;
+	sleep_time.tv_nsec = SNAKE_MOVE_INTERVAL;
 
 	while (1) {
 		pthread_mutex_lock(&(monitor->mutex));
@@ -142,24 +142,7 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 		move = monitor->move_previous;
 	}
 
-	s_coordinates offset = { 0, 0 };
-	switch (move) {
-	case SNAKE_MOVE_UP:
-		offset = (s_coordinates){ 0, -1 };
-		break;
-	case SNAKE_MOVE_DOWN:
-		offset = (s_coordinates){ 0, 1 };
-		break;
-	case SNAKE_MOVE_RIGHT:
-		offset = (s_coordinates){ 1, 0 };
-		break;
-	case SNAKE_MOVE_LEFT:
-		offset = (s_coordinates){ -1, 0 };
-		break;
-	default:
-		return;
-	}
-
+	s_coordinates offset = s_get_move_offset(move);
 	if (!s_move_direction(snake, offset)) {
 		monitor->snake_alive = 0;
 		return;
@@ -167,6 +150,22 @@ void s_handle_move(snake *const snake, monitor *const monitor)
 	monitor->move_next[0] = monitor->move_next[1];
 	monitor->move_next[1] = SNAKE_MOVE_EMPTY;
 	monitor->move_previous = move;
+}
+
+struct s_coordinates s_get_move_offset(const m_snake_move move)
+{
+	switch (move) {
+	case SNAKE_MOVE_UP:
+		return (s_coordinates){ 0, -1 };
+	case SNAKE_MOVE_DOWN:
+		return (s_coordinates){ 0, 1 };
+	case SNAKE_MOVE_RIGHT:
+		return (s_coordinates){ 1, 0 };
+	case SNAKE_MOVE_LEFT:
+		return (s_coordinates){ -1, 0 };
+	default:
+		return (s_coordinates){ 0, 0 };
+	}
 }
 
 short s_move_direction(snake *const snake, const s_coordinates offset)

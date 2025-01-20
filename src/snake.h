@@ -29,6 +29,11 @@
 #include <time.h>
 
 /*
+ * Snake move interval in nanoseconds
+ */
+#define SNAKE_MOVE_INTERVAL 1e8
+
+/*
  * Coordinates
  */
 typedef struct s_coordinates {
@@ -79,6 +84,12 @@ short s_handle_signal(snake *const snake, monitor *const monitor);
  * Handles specified snake move
  */
 void s_handle_move(snake *const snake, monitor *const monitor);
+
+/*
+ * Gets snake move offset
+ * \RETURNS: offset struct
+ */
+struct s_coordinates s_get_move_offset(const m_snake_move move);
 
 /*
  * Moves snake to given direction
