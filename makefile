@@ -7,13 +7,16 @@ CFLAGS += -fsanitize=address
 LIBS = -lncurses -lpthread
 
 # Subdirectory for object files
-O = objs
+O = obj
 
 # Subdirectory of source files
 S = src
 
+# Subdirectory for binary files
+B = bin
+
 # Target file
-TARGET = snake
+TARGET = $(B)/snake
 
 ifeq ($(OS),Windows_NT)
 else
@@ -35,7 +38,9 @@ OBJS = $(O)/snake.o \
 	$(O)/circular_dynamic_queue.o
 
 # Rules
-all: snake
+.PHONY: all snake outdir clean
+
+all: outdir snake
 
 snake: $(OBJS) $(O)/main.o
 	$(CC) $(CFLAGS) $(OBJS) $(O)/main.o -o $(TARGET) $(LIBS)
@@ -43,6 +48,8 @@ snake: $(OBJS) $(O)/main.o
 $(O)/%.o: $(S)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+outdir:
+	mkdir -p $(O) $(B)
+
 clean:
-	rm -rf $(OBJS)
-	rm -rf snake.out
+	rm -rf $(O) $(B)

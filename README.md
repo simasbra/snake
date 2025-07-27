@@ -18,7 +18,7 @@ There are three threads:
 
 To build the game, in root repository directory create directory `objs` for object files,
 then run `make` to build the game.
-To run the game just enter `./snake` and start playing.
+To run the game just enter `./bin/snake` and start playing.
 
 ### License
 
